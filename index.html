@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Boolean Julian</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --miku:      #39c5bb;
+      --miku-dim:  rgba(57,197,187,.15);
+      --miku-glow: rgba(57,197,187,.35);
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .9rem;
+      color: var(--miku);
+      text-decoration: none;
+    }
+    .nav-brand span { color: var(--muted); }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: .875rem;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 5rem 2rem 3rem;
+      display: flex; align-items: center; gap: 3rem;
+    }
+    .hero-avatar {
+      flex-shrink: 0;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--miku);
+      box-shadow: 0 0 24px var(--miku-glow);
+    }
+    .hero-text h1 {
+      font-size: 2rem; font-weight: 700;
+      margin-bottom: .4rem;
+    }
+    .hero-text h1 span { color: var(--miku); }
+    .hero-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .85rem; color: var(--miku);
+      margin-bottom: .75rem;
+    }
+    .hero-bio { color: var(--muted); font-size: .95rem; max-width: 500px; }
+    .hero-links {
+      display: flex; flex-wrap: wrap; gap: .75rem;
+      margin-top: 1.25rem;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .45rem 1rem;
+      border-radius: 6px; font-size: .85rem; font-weight: 500;
+      text-decoration: none; transition: all .2s;
+      border: 1px solid var(--border);
+      background: var(--bg2); color: var(--text);
+    }
+    .btn:hover { border-color: var(--miku); color: var(--miku); background: var(--miku-dim); }
+    .btn-primary {
+      background: var(--miku); color: var(--bg);
+      border-color: var(--miku);
+    }
+    .btn-primary:hover { background: #2fb3a9; border-color: #2fb3a9; color: var(--bg); }
+
+    /* ── SECTION ── */
+    section { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .section-title {
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .section-title::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* ── PROJECT GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex; flex-direction: column; gap: .6rem;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      text-decoration: none; color: inherit;
+    }
+    .card:hover {
+      border-color: var(--miku);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(57,197,187,.12);
+    }
+    .card-title {
+      font-size: .95rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .card-icon { font-size: 1rem; }
+    .card-desc {
+      font-size: .82rem; color: var(--muted);
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex; align-items: center; gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .lang-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .lang-label { font-size: .78rem; color: var(--muted); }
+    .tag {
+      font-size: .72rem; font-weight: 500;
+      padding: .15rem .5rem;
+      border-radius: 4px;
+      background: var(--miku-dim); color: var(--miku);
+    }
+    .star { margin-left: auto; font-size: .78rem; color: var(--muted); }
+
+    /* language colours */
+    .lang-js   { background: #f1e05a; }
+    .lang-ts   { background: #3178c6; }
+    .lang-py   { background: #3572A5; }
+    .lang-html { background: #e34c26; }
+    .lang-null { background: #555; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      font-size: .8rem; color: var(--muted);
+    }
+    footer a { color: var(--miku); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero { flex-direction: column; gap: 1.5rem; text-align: center; padding-top: 3rem; }
+      .hero-links { justify-content: center; }
+      .hero-bio { margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="#"><span>&lt;</span>TheBooleanJulian<span>/&gt;</span></a>
+    <ul class="nav-links">
+      <li><a href="#featured">Featured</a></li>
+      <li><a href="#bots">Bots</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <img
+      class="hero-avatar"
+      src="https://avatars.githubusercontent.com/u/20150202?v=4"
+      alt="TheBooleanJulian avatar"
+    >
+    <div class="hero-text">
+      <h1>The <span>Boolean</span> Julian</h1>
+      <p class="hero-subtitle">// NUS Engineering · Singapore</p>
+      <p class="hero-bio">Hello, Sekai. Building Miku, one day at a time. I make Telegram bots, web apps, and the occasional automation tool.</p>
+      <div class="hero-links">
+        <a class="btn btn-primary" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a class="btn" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURED -->
+  <section id="featured">
+    <h2 class="section-title">Featured Projects</h2>
+    <div class="grid">
+
+      <a class="card" href="https://github.com/TheBooleanJulian/miku-figures" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🎌</span> miku-figures</div>
+        <p class="card-desc">A React-based figure archive for Hatsune Miku with automated daily scraping from MyFigureCollection.net. Features filtering by type, series, illustrator, manufacturer, year, and price.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
+          <span class="tag">React</span>
+          <span class="star">★ 1</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/followtrain-v2" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🚂</span> followtrain-v2</div>
+        <p class="card-desc">Lightweight React app for groups to share and follow each other across social media platforms via a simple shared link — no auth required, real-time collaboration.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
+          <span class="tag">React</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/luxsync" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">📸</span> luxsync</div>
+        <p class="card-desc">Secure photo gallery platform integrating Backblaze B2 storage with Supabase. Password-protected admin panel, automated metadata sync, and a user-friendly gallery interface.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-ts"></span><span class="lang-label">TypeScript</span>
+          <span class="tag">Supabase</span>
+          <span class="tag">B2</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/pixiv-organiser" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🖼️</span> pixiv-organiser</div>
+        <p class="card-desc">Automatically categorises your Pixiv bookmarks by writing category tags back to them — based on the artwork's existing tags and NSFW rating. Saves hours of manual tagging.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
+          <span class="tag">Automation</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/web-search-ai-agent" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🤖</span> web-search-ai-agent</div>
+        <p class="card-desc">An AI-powered web search agent built with TypeScript. Combines web search with AI reasoning to answer queries with live information.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-ts"></span><span class="lang-label">TypeScript</span>
+          <span class="tag">AI</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/pixel-scout" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🔍</span> pixel-scout</div>
+        <p class="card-desc">A web-based scouting tool built with HTML — lightweight and browser-native.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-html"></span><span class="lang-label">HTML</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- BOTS -->
+  <section id="bots">
+    <h2 class="section-title">Telegram Bots</h2>
+    <div class="grid">
+
+      <a class="card" href="https://github.com/TheBooleanJulian/food-analyst-bot" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🍜</span> food-analyst-bot</div>
+        <p class="card-desc">Send a food photo to this Telegram bot and get an instant nutritional breakdown — calories, protein, carbs, and fat — powered by Claude AI vision.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
+          <span class="tag">Claude AI</span>
+          <span class="tag">Telegram</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/miku-monday" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">💙</span> miku-monday</div>
+        <p class="card-desc">Automatically posts a Hatsune Miku GIF every Monday at 12:00 AM to any Telegram channel it's added to. Designed for zero-config deployment on Zeabur.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
+          <span class="tag">Telegram</span>
+          <span class="tag">Zeabur</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/mikuquest" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">⚔️</span> mikuquest</div>
+        <p class="card-desc">Telegram-native task manager with XP, streaks, and a daily 6 AM debrief — built for solopreneurs juggling too many things at once.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
+          <span class="tag">Telegram</span>
+          <span class="tag">Gamification</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/mikew-gcal-v3" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🎸</span> mikew-gcal-v3</div>
+        <p class="card-desc">Scrapes FattKew / OneBoyBand's upcoming busking schedule from the NAC eServices site and auto-posts it every Friday at 8 PM SGT. Trigger manually anytime.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
+          <span class="tag">Telegram</span>
+          <span class="tag">Scraper</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/thebooleanjulian-bot-core" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🧱</span> bot-core</div>
+        <p class="card-desc">Shared library and common utilities powering all TheBooleanJulian Telegram bots. Centralises auth, logging, and deployment helpers.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-html"></span><span class="lang-label">HTML</span>
+          <span class="tag">Library</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- TOOLS & UTILITIES -->
+  <section id="tools">
+    <h2 class="section-title">Tools &amp; Utilities</h2>
+    <div class="grid">
+
+      <a class="card" href="https://github.com/TheBooleanJulian/google-reviews-proxy" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">⭐</span> google-reviews-proxy</div>
+        <p class="card-desc">A lightweight proxy server for fetching Google Reviews without exposing your API key on the client side.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
+          <span class="tag">Proxy</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/fortune-cookie-simulator" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🥠</span> fortune-cookie-simulator</div>
+        <p class="card-desc">Virtual fortune cookie simulator in ASCII and terminal text format. A fun little Python CLI project.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/TheBooleanJulian/youtube-thumbnail-getter" target="_blank" rel="noopener">
+        <div class="card-title"><span class="card-icon">🖼️</span> youtube-thumbnail-getter</div>
+        <p class="card-desc">Downloads the maximum resolution thumbnail from any YouTube video URL. Simple CLI tool for grabbing clean video art.</p>
+        <div class="card-footer">
+          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Built with HTML &amp; CSS &middot; <a href="https://github.com/TheBooleanJulian/thebooleanjulian.github.io" target="_blank" rel="noopener">Source on GitHub</a></p>
+    <p style="margin-top:.4rem">© 2026 The Boolean Julian &middot; Singapore</p>
+  </footer>
+
+</body>
+</html>
