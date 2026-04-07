@@ -101,15 +101,22 @@
 
     /* ── SECTION ── */
     section { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .section-header {
+      display: flex; align-items: center; gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
     .section-title {
       font-size: 1.1rem; font-weight: 600;
       color: var(--muted); text-transform: uppercase; letter-spacing: .08em;
-      margin-bottom: 1.5rem;
-      display: flex; align-items: center; gap: .75rem;
+      white-space: nowrap;
     }
-    .section-title::after {
-      content: ''; flex: 1;
-      height: 1px; background: var(--border);
+    .section-line {
+      flex: 1; height: 1px; background: var(--border);
+    }
+    .section-count {
+      font-size: .78rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
     }
 
     /* ── PROJECT GRID ── */
@@ -134,9 +141,7 @@
     }
     .card-title {
       font-size: .95rem; font-weight: 600;
-      display: flex; align-items: center; gap: .5rem;
     }
-    .card-icon { font-size: 1rem; }
     .card-desc {
       font-size: .82rem; color: var(--muted);
       flex: 1;
@@ -145,6 +150,10 @@
       line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    .card-desc-empty {
+      font-size: .82rem; color: var(--bg3);
+      font-style: italic; flex: 1;
     }
     .card-footer {
       display: flex; align-items: center; gap: .5rem;
@@ -162,12 +171,25 @@
     }
     .star { margin-left: auto; font-size: .78rem; color: var(--muted); }
 
-    /* language colours */
-    .lang-js   { background: #f1e05a; }
-    .lang-ts   { background: #3178c6; }
-    .lang-py   { background: #3572A5; }
-    .lang-html { background: #e34c26; }
-    .lang-null { background: #555; }
+    /* ── LOADING / ERROR ── */
+    .state-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .state-msg a { color: var(--miku); }
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--miku);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin-bottom: .75rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── FOOTER ── */
     footer {
@@ -192,9 +214,7 @@
   <nav>
     <a class="nav-brand" href="#"><span>&lt;</span>TheBooleanJulian<span>/&gt;</span></a>
     <ul class="nav-links">
-      <li><a href="#featured">Featured</a></li>
-      <li><a href="#bots">Bots</a></li>
-      <li><a href="#tools">Tools</a></li>
+      <li><a href="#projects">Projects</a></li>
       <li><a href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
   </nav>
@@ -223,163 +243,118 @@
     </div>
   </div>
 
-  <!-- FEATURED -->
-  <section id="featured">
-    <h2 class="section-title">Featured Projects</h2>
-    <div class="grid">
-
-      <a class="card" href="https://github.com/TheBooleanJulian/miku-figures" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🎌</span> miku-figures</div>
-        <p class="card-desc">A React-based figure archive for Hatsune Miku with automated daily scraping from MyFigureCollection.net. Features filtering by type, series, illustrator, manufacturer, year, and price.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
-          <span class="tag">React</span>
-          <span class="star">★ 1</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/followtrain-v2" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🚂</span> followtrain-v2</div>
-        <p class="card-desc">Lightweight React app for groups to share and follow each other across social media platforms via a simple shared link — no auth required, real-time collaboration.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
-          <span class="tag">React</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/luxsync" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">📸</span> luxsync</div>
-        <p class="card-desc">Secure photo gallery platform integrating Backblaze B2 storage with Supabase. Password-protected admin panel, automated metadata sync, and a user-friendly gallery interface.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-ts"></span><span class="lang-label">TypeScript</span>
-          <span class="tag">Supabase</span>
-          <span class="tag">B2</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/pixiv-organiser" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🖼️</span> pixiv-organiser</div>
-        <p class="card-desc">Automatically categorises your Pixiv bookmarks by writing category tags back to them — based on the artwork's existing tags and NSFW rating. Saves hours of manual tagging.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
-          <span class="tag">Automation</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/web-search-ai-agent" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🤖</span> web-search-ai-agent</div>
-        <p class="card-desc">An AI-powered web search agent built with TypeScript. Combines web search with AI reasoning to answer queries with live information.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-ts"></span><span class="lang-label">TypeScript</span>
-          <span class="tag">AI</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/pixel-scout" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🔍</span> pixel-scout</div>
-        <p class="card-desc">A web-based scouting tool built with HTML — lightweight and browser-native.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-html"></span><span class="lang-label">HTML</span>
-        </div>
-      </a>
-
+  <!-- PROJECTS (dynamically populated) -->
+  <section id="projects">
+    <div class="section-header">
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+      <span class="section-count" id="repo-count"></span>
     </div>
-  </section>
-
-  <!-- BOTS -->
-  <section id="bots">
-    <h2 class="section-title">Telegram Bots</h2>
-    <div class="grid">
-
-      <a class="card" href="https://github.com/TheBooleanJulian/food-analyst-bot" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🍜</span> food-analyst-bot</div>
-        <p class="card-desc">Send a food photo to this Telegram bot and get an instant nutritional breakdown — calories, protein, carbs, and fat — powered by Claude AI vision.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
-          <span class="tag">Claude AI</span>
-          <span class="tag">Telegram</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/miku-monday" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">💙</span> miku-monday</div>
-        <p class="card-desc">Automatically posts a Hatsune Miku GIF every Monday at 12:00 AM to any Telegram channel it's added to. Designed for zero-config deployment on Zeabur.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
-          <span class="tag">Telegram</span>
-          <span class="tag">Zeabur</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/mikuquest" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">⚔️</span> mikuquest</div>
-        <p class="card-desc">Telegram-native task manager with XP, streaks, and a daily 6 AM debrief — built for solopreneurs juggling too many things at once.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
-          <span class="tag">Telegram</span>
-          <span class="tag">Gamification</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/mikew-gcal-v3" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🎸</span> mikew-gcal-v3</div>
-        <p class="card-desc">Scrapes FattKew / OneBoyBand's upcoming busking schedule from the NAC eServices site and auto-posts it every Friday at 8 PM SGT. Trigger manually anytime.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
-          <span class="tag">Telegram</span>
-          <span class="tag">Scraper</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/thebooleanjulian-bot-core" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🧱</span> bot-core</div>
-        <p class="card-desc">Shared library and common utilities powering all TheBooleanJulian Telegram bots. Centralises auth, logging, and deployment helpers.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-html"></span><span class="lang-label">HTML</span>
-          <span class="tag">Library</span>
-        </div>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- TOOLS & UTILITIES -->
-  <section id="tools">
-    <h2 class="section-title">Tools &amp; Utilities</h2>
-    <div class="grid">
-
-      <a class="card" href="https://github.com/TheBooleanJulian/google-reviews-proxy" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">⭐</span> google-reviews-proxy</div>
-        <p class="card-desc">A lightweight proxy server for fetching Google Reviews without exposing your API key on the client side.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-js"></span><span class="lang-label">JavaScript</span>
-          <span class="tag">Proxy</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/fortune-cookie-simulator" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🥠</span> fortune-cookie-simulator</div>
-        <p class="card-desc">Virtual fortune cookie simulator in ASCII and terminal text format. A fun little Python CLI project.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
-        </div>
-      </a>
-
-      <a class="card" href="https://github.com/TheBooleanJulian/youtube-thumbnail-getter" target="_blank" rel="noopener">
-        <div class="card-title"><span class="card-icon">🖼️</span> youtube-thumbnail-getter</div>
-        <p class="card-desc">Downloads the maximum resolution thumbnail from any YouTube video URL. Simple CLI tool for grabbing clean video art.</p>
-        <div class="card-footer">
-          <span class="lang-dot lang-py"></span><span class="lang-label">Python</span>
-        </div>
-      </a>
-
+    <div class="grid" id="repo-grid">
+      <div class="state-msg">
+        <div class="spinner"></div><br>
+        Loading repos&hellip;
+      </div>
     </div>
   </section>
 
   <footer>
     <p>Built with HTML &amp; CSS &middot; <a href="https://github.com/TheBooleanJulian/thebooleanjulian.github.io" target="_blank" rel="noopener">Source on GitHub</a></p>
-    <p style="margin-top:.4rem">© 2026 The Boolean Julian &middot; Singapore</p>
+    <p style="margin-top:.4rem">&copy; 2026 The Boolean Julian &middot; Singapore</p>
   </footer>
+
+  <script>
+    const GITHUB_USER = 'TheBooleanJulian';
+    const SKIP_REPOS  = new Set(['thebooleanjulian.github.io', 'helloworld01', 'Julian97.github.io']);
+
+    // GitHub language → CSS colour (github.com/ozh/github-colors)
+    const LANG_COLORS = {
+      JavaScript: '#f1e05a',
+      TypeScript: '#3178c6',
+      Python:     '#3572A5',
+      HTML:       '#e34c26',
+      CSS:        '#563d7c',
+      Shell:      '#89e051',
+      Go:         '#00ADD8',
+      Rust:       '#dea584',
+      Java:       '#b07219',
+      'C++':      '#f34b7d',
+      C:          '#555555',
+    };
+
+    function langDot(lang) {
+      const color = lang ? (LANG_COLORS[lang] ?? '#888') : '#444';
+      return `<span class="lang-dot" style="background:${color}"></span>
+              <span class="lang-label">${lang ?? 'Unknown'}</span>`;
+    }
+
+    function starsEl(n) {
+      return n > 0 ? `<span class="star">&#9733; ${n}</span>` : '';
+    }
+
+    function renderCard(repo) {
+      const desc = repo.description
+        ? `<p class="card-desc">${escHtml(repo.description)}</p>`
+        : `<p class="card-desc-empty">No description</p>`;
+
+      const topics = (repo.topics ?? [])
+        .slice(0, 3)
+        .map(t => `<span class="tag">${escHtml(t)}</span>`)
+        .join('');
+
+      return `
+        <a class="card" href="${repo.html_url}" target="_blank" rel="noopener">
+          <div class="card-title">${escHtml(repo.name)}</div>
+          ${desc}
+          <div class="card-footer">
+            ${langDot(repo.language)}
+            ${topics}
+            ${starsEl(repo.stargazers_count)}
+          </div>
+        </a>`;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function loadRepos() {
+      const grid  = document.getElementById('repo-grid');
+      const count = document.getElementById('repo-count');
+
+      try {
+        const res = await fetch(
+          `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`,
+          { headers: { Accept: 'application/vnd.github+json' } }
+        );
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+
+        const repos = (await res.json())
+          .filter(r => !r.fork && !r.archived && !SKIP_REPOS.has(r.name))
+          .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+
+        if (repos.length === 0) {
+          grid.innerHTML = '<div class="state-msg">No public repos found.</div>';
+          return;
+        }
+
+        count.textContent = `${repos.length} repos`;
+        grid.innerHTML = repos.map(renderCard).join('');
+
+      } catch (err) {
+        grid.innerHTML = `
+          <div class="state-msg">
+            Could not load repos — ${escHtml(err.message)}.<br>
+            <a href="https://github.com/${GITHUB_USER}?tab=repositories" target="_blank" rel="noopener">
+              View on GitHub &rarr;
+            </a>
+          </div>`;
+      }
+    }
+
+    loadRepos();
+  </script>
 
 </body>
 </html>
