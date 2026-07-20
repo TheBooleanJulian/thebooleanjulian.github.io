@@ -766,6 +766,7 @@
 
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
+    const AVATAR_URL  = `https://github.com/${GITHUB_USER}.png`;
     const SKIP_REPOS  = new Set(['thebooleanjulian.github.io', 'helloworld01', 'Julian97.github.io']);
 
     // GitHub language → CSS colour (github.com/ozh/github-colors)
@@ -816,6 +817,57 @@
       return n > 0 ? `<span class="star">&#9733; ${n}</span>` : '';
     }
 
+    function forksEl(n) {
+      return n > 0 ? `<span class="star">&#127860; ${n}</span>` : '';
+    }
+
+    function issuesEl(n) {
+      return n > 0 ? `<span class="star">&#128027; ${n}</span>` : '';
+    }
+
+    // Cache of resolved README hero-image URLs, keyed by repo full_name,
+    // so re-sorting/filtering doesn't lose an already-found image or
+    // refetch the README again.
+    const heroImageCache = new Map();
+
+    function cardThumbSrc(repo) {
+      return heroImageCache.get(repo.full_name) || thumbUrl(repo);
+    }
+
+    function extractReadmeImage(markdown) {
+      const mdMatch = markdown.match(/!\[[^\]]*\]\(([^)\s]+)/);
+      const htmlMatch = markdown.match(/<img[^>]+src=["']([^"']+)["']/i);
+      return (mdMatch && mdMatch[1]) || (htmlMatch && htmlMatch[1]) || null;
+    }
+
+    function resolveReadmeImageUrl(raw, repo) {
+      if (/^https?:\/\//i.test(raw)) return raw;
+      const branch = repo.default_branch || 'main';
+      const cleanPath = raw.replace(/^\.?\//, '');
+      return `https://raw.githubusercontent.com/${repo.full_name}/${branch}/${cleanPath}`;
+    }
+
+    async function loadReadmeThumbnails(repos) {
+      await Promise.allSettled(repos.map(async (repo) => {
+        try {
+          const res = await fetch(
+            `https://api.github.com/repos/${repo.full_name}/readme`,
+            { headers: { Accept: 'application/vnd.github.raw' } }
+          );
+          if (!res.ok) return;
+          const text = await res.text();
+          const raw = extractReadmeImage(text);
+          if (!raw) return;
+          const url = resolveReadmeImageUrl(raw, repo);
+          heroImageCache.set(repo.full_name, url);
+          const img = document.querySelector(`.card-thumb[data-repo="${CSS.escape(repo.full_name)}"]`);
+          if (img) img.src = url;
+        } catch (err) {
+          // Keep the auto-generated thumbnail fallback already showing.
+        }
+      }));
+    }
+
     function siteLinkEl(url) {
       if (!url) return '';
       return `
@@ -852,13 +904,15 @@
             </div>
           </div>
           <div class="xp-body">
-            <img class="card-thumb" src="${thumbUrl(repo)}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.remove()">
+            <img class="card-thumb" data-repo="${escHtml(repo.full_name)}" src="${cardThumbSrc(repo)}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.onerror=null;this.src='${AVATAR_URL}';">
             ${desc}
             <div class="card-footer">
               ${langDot(repo.language)}
               ${topics}
               <div class="card-footer-right">
                 ${starsEl(repo.stargazers_count)}
+                ${forksEl(repo.forks_count)}
+                ${issuesEl(repo.open_issues_count)}
                 ${siteLinkEl(repo.homepage)}
               </div>
             </div>
@@ -923,6 +977,7 @@
         allRepos = repos;
         populateLangFilter(repos);
         applyFiltersAndRender();
+        loadReadmeThumbnails(repos);
 
       } catch (err) {
         grid.innerHTML = `
