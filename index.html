@@ -383,14 +383,9 @@
     @keyframes boot-fill { from { background-position: 0% 0; } to { background-position: -200% 0; } }
     .boot-caption { font-size: .75rem; color: #999; }
     .boot-screen.hidden { opacity: 0; pointer-events: none; }
-    .boot-screen.shutdown .boot-caption { cursor: default; }
-    .boot-screen.shutdown .boot-restart {
-      margin-top: .5rem;
-      display: none;
-    }
-    .boot-screen.shutdown.ready .boot-restart { display: inline-flex; }
+    .boot-actions { display: none; gap: .6rem; margin-top: .5rem; }
+    .boot-screen.ready .boot-actions { display: flex; }
     .boot-screen.shutdown .boot-bar { display: none; }
-    .boot-screen.shutdown.ready .boot-bar { display: none; }
 
     /* ── DESKTOP ICONS ── */
     .desktop-icons {
@@ -421,7 +416,7 @@
 
     /* ── START MENU ── */
     .start-menu {
-      position: fixed; left: 4px; bottom: 36px; z-index: 300;
+      position: fixed; left: 4px; bottom: 36px; z-index: 5000;
       width: 300px;
       display: flex; flex-direction: column;
       border-radius: 8px 8px 4px 4px;
@@ -477,15 +472,12 @@
     }
     .start-menu-footer button:hover { border-color: var(--accent); }
 
-    /* ── WINDOW MANAGER (drag / minimize / maximize / close) ── */
-    .xp-titlebar { cursor: grab; }
-    .card.wm-dragging { cursor: grabbing; transition: none !important; user-select: none; }
-    .card.wm-dragging .xp-titlebar { cursor: grabbing; }
-    .card.wm-floating { position: fixed; z-index: 300; }
+    /* ── WINDOW MANAGER (minimize / maximize / close) ── */
     .card.wm-maximized {
       position: fixed !important;
       inset: 6px 6px 40px !important;
       width: auto !important; height: auto !important;
+      transform: none !important;
       z-index: 400;
       max-width: none;
     }
@@ -533,6 +525,46 @@
       overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap;
     }
 
+    /* ── GAME WINDOWS ── */
+    .game-window {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: min(94vw, var(--game-w, 480px));
+      z-index: 500;
+    }
+    .game-window .game-body {
+      overflow: auto;
+      max-height: 82vh;
+      align-items: center;
+    }
+    .game-launcher-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: .75rem;
+      padding: .5rem;
+    }
+    .game-launcher-icon {
+      display: flex; flex-direction: column; align-items: center; gap: .35rem;
+      background: none; border: none; cursor: pointer;
+      padding: .6rem .3rem; border-radius: 4px;
+      font-family: Tahoma, sans-serif;
+    }
+    .game-launcher-icon:hover { background: var(--accent-dim); }
+    .game-launcher-icon .glyph { font-size: 2rem; }
+    .game-launcher-icon .label { font-size: .75rem; color: var(--text); text-align: center; }
+    .game-toolbar {
+      display: flex; align-items: center; flex-wrap: wrap; gap: .5rem;
+      font-size: .82rem;
+    }
+    .game-status { font-size: .82rem; color: var(--muted); min-height: 1.2em; }
+    .game-board { display: grid; gap: 2px; margin: 0 auto; }
+    .game-cell {
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-weight: 700;
+      cursor: pointer; user-select: none;
+      background: #ece9d8; border: 1px solid #b8b3a0;
+    }
+    .game-cell:hover { background: #dce8fb; }
+
     @media (prefers-reduced-motion: reduce) {
       .cloud-1, .cloud-2, .hero-avatar, .tray-colon, .boot-bar-fill {
         animation: none;
@@ -556,7 +588,10 @@
     <div class="boot-logo">The <span>Boolean</span> Julian</div>
     <div class="boot-bar"><div class="boot-bar-fill"></div></div>
     <div class="boot-caption" id="boot-caption">Starting up&hellip;</div>
-    <button class="btn boot-restart" id="boot-restart-btn">&#8635; Restart</button>
+    <div class="boot-actions">
+      <button class="btn btn-primary" id="boot-signout-btn">&#128100; Sign In</button>
+      <button class="btn" id="boot-restart-btn">&#8635; Restart</button>
+    </div>
   </div>
 
   <div class="cloud cloud-1"></div>
@@ -574,6 +609,10 @@
     <button class="desktop-icon" id="icon-github" title="Double-click to open">
       <span class="desktop-icon-glyph">&#128025;</span>
       <span class="desktop-icon-label">GitHub</span>
+    </button>
+    <button class="desktop-icon" id="icon-games" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#127918;</span>
+      <span class="desktop-icon-label">Games</span>
     </button>
     <button class="desktop-icon" id="icon-recyclebin" title="Double-click to open">
       <span class="desktop-icon-glyph">&#128465;&#65039;</span>
@@ -603,9 +642,9 @@
         >
         <div class="hero-text">
           <h1>The <span>Boolean</span> Julian</h1>
-          <p class="hero-subtitle">// NUS Engineering &middot; Singapore</p>
-          <p class="hero-bio">Hello, Sekai. Building Miku, one day at a time. I make Telegram bots, web apps, and the occasional automation tool.</p>
-          <div class="hero-links">
+          <p class="hero-subtitle" id="hero-subtitle">// NUS Engineering &middot; Singapore</p>
+          <p class="hero-bio" id="hero-bio">Hello, Sekai. Building Miku, one day at a time. I make Telegram bots, web apps, and the occasional automation tool.</p>
+          <div class="hero-links" id="hero-links">
             <a class="btn btn-primary" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
               GitHub
@@ -679,6 +718,7 @@
       <div class="start-menu-left">
         <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128421;&#65039;</span> About Me</button>
         <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128193;</span> My Projects</button>
+        <button class="start-menu-item" data-action="open-games"><span class="smi-icon">&#127918;</span> Games</button>
         <a class="start-menu-item" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener"><span class="smi-icon">&#128025;</span> GitHub</a>
         <a class="start-menu-item" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener"><span class="smi-icon">&#128188;</span> LinkedIn</a>
       </div>
@@ -882,6 +922,41 @@
 
     loadRepos();
 
+    async function loadProfile() {
+      try {
+        const res = await fetch(
+          `https://api.github.com/users/${GITHUB_USER}`,
+          { headers: { Accept: 'application/vnd.github+json' } }
+        );
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+        const data = await res.json();
+
+        if (data.bio) document.getElementById('hero-bio').textContent = data.bio;
+
+        const subtitleParts = [];
+        if (data.company) subtitleParts.push(data.company.replace(/^@/, ''));
+        if (data.location) subtitleParts.push(data.location);
+        if (subtitleParts.length) {
+          document.getElementById('hero-subtitle').textContent = '// ' + subtitleParts.join(' · ');
+        }
+
+        const linksEl = document.getElementById('hero-links');
+        if (data.blog) {
+          const url = /^https?:\/\//.test(data.blog) ? data.blog : `https://${data.blog}`;
+          linksEl.insertAdjacentHTML('beforeend', `
+            <a class="btn" href="${escHtml(url)}" target="_blank" rel="noopener">&#127760; Website</a>`);
+        }
+        if (data.twitter_username) {
+          linksEl.insertAdjacentHTML('beforeend', `
+            <a class="btn" href="https://twitter.com/${escHtml(data.twitter_username)}" target="_blank" rel="noopener">&#128038; Twitter</a>`);
+        }
+      } catch (err) {
+        // Keep the static fallback bio/links already in the markup.
+      }
+    }
+
+    loadProfile();
+
     document.getElementById('sort-select').addEventListener('change', applyFiltersAndRender);
     document.getElementById('lang-select').addEventListener('change', applyFiltersAndRender);
 
@@ -1035,64 +1110,6 @@
       else if (btn.classList.contains('xp-btn-max')) toggleMaximize(card);
     }, true);
 
-    // Dragging windows by their titlebar
-    let dragState = null;
-
-    document.addEventListener('pointerdown', (e) => {
-      if (e.button !== undefined && e.button !== 0) return;
-      const titlebar = e.target.closest('.xp-titlebar');
-      if (!titlebar || e.target.closest('.xp-titlebar-btns')) return;
-      const card = titlebar.closest('.card');
-      if (!card) return;
-
-      bringToFront(card);
-      const rect = card.getBoundingClientRect();
-      dragState = {
-        card,
-        startX: e.clientX, startY: e.clientY,
-        origLeft: rect.left, origTop: rect.top, origWidth: rect.width,
-        moved: false,
-        link: e.target.closest('a'),
-      };
-    });
-
-    document.addEventListener('pointermove', (e) => {
-      if (!dragState) return;
-      const { card } = dragState;
-      if (card.classList.contains('wm-maximized')) return;
-
-      const dx = e.clientX - dragState.startX;
-      const dy = e.clientY - dragState.startY;
-
-      if (!dragState.moved) {
-        if (Math.hypot(dx, dy) < 5) return;
-        dragState.moved = true;
-        card.classList.add('wm-floating', 'wm-dragging');
-        card.style.left = dragState.origLeft + 'px';
-        card.style.top = dragState.origTop + 'px';
-        card.style.width = dragState.origWidth + 'px';
-        card.style.margin = '0';
-      }
-
-      card.style.left = (dragState.origLeft + dx) + 'px';
-      card.style.top = (dragState.origTop + dy) + 'px';
-    });
-
-    document.addEventListener('pointerup', () => {
-      if (!dragState) return;
-      const { card, moved, link } = dragState;
-      card.classList.remove('wm-dragging');
-      if (moved && link) {
-        const suppress = (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          link.removeEventListener('click', suppress, true);
-        };
-        link.addEventListener('click', suppress, true);
-      }
-      dragState = null;
-    });
-
     function openWindow(id) {
       const card = document.getElementById(id);
       if (!card) return;
@@ -1125,7 +1142,9 @@
       const action = item.dataset.action;
       if (action === 'open-hero') openWindow('window-hero');
       else if (action === 'open-projects') openWindow('window-projects');
+      else if (action === 'open-games') openGameCenter();
       else if (action === 'recyclebin') showRecycleBin();
+      else if (action === 'log-off') doLogOff();
       else if (action === 'shutdown') doShutdown();
       startMenu.classList.remove('open');
       startBtn.setAttribute('aria-expanded', 'false');
@@ -1152,6 +1171,7 @@
     attachActivate(document.getElementById('icon-about'), () => openWindow('window-hero'));
     attachActivate(document.getElementById('icon-projects'), () => openWindow('window-projects'));
     attachActivate(document.getElementById('icon-github'), () => window.open('https://github.com/TheBooleanJulian', '_blank', 'noopener'));
+    attachActivate(document.getElementById('icon-games'), () => openGameCenter());
     attachActivate(document.getElementById('icon-recyclebin'), showRecycleBin);
 
     /* ══════════════ BOOT / SHUTDOWN SCREEN ══════════════ */
@@ -1174,8 +1194,37 @@
       }, reducedMotion ? 0 : 1400);
     }
 
+    function resetWindowStates() {
+      document.querySelectorAll('.card.wm-closed').forEach((card) => restoreWindow(card));
+      document.querySelectorAll('.card.wm-maximized').forEach((card) => {
+        card.classList.remove('wm-maximized');
+        card.style.cssText = card.dataset.prevStyle || '';
+        delete card.dataset.prevStyle;
+      });
+    }
+
+    function doLogOff() {
+      bootScreen.classList.remove('hidden', 'shutdown', 'ready');
+      bootCaption.textContent = 'Logging off…';
+      playSound('shutdown');
+      setTimeout(() => {
+        resetWindowStates();
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+        bootCaption.textContent = 'Welcome back';
+      }, reducedMotion ? 0 : 1100);
+      setTimeout(() => bootScreen.classList.add('hidden'), reducedMotion ? 0 : 1900);
+    }
+
+    function doSignIn() {
+      bootScreen.classList.remove('shutdown', 'ready');
+      bootScreen.classList.add('hidden');
+    }
+
     document.getElementById('boot-restart-btn').addEventListener('click', () => location.reload());
+    document.getElementById('boot-signout-btn').addEventListener('click', doSignIn);
   </script>
+
+  <script src="games.js"></script>
 
 </body>
 </html>
