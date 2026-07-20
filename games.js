@@ -26,14 +26,18 @@ function createGameWindow(id, icon, title, widthPx) {
     </div>
     <div class="xp-body game-body"></div>`;
   document.body.appendChild(card);
-  // Freeze the initial centered position in pixels so later content
-  // size changes (re-renders) don't shift the window via the
-  // percentage-based transform used for the first paint.
-  const rect = card.getBoundingClientRect();
-  card.style.left = rect.left + 'px';
-  card.style.top = rect.top + 'px';
-  card.style.transform = 'none';
   bringToFront(card);
+  // Freeze the initial centered position in pixels so later content
+  // re-renders don't shift the window via the percentage-based transform
+  // used for the first paint. Deferred to the next frame so it measures
+  // the window *after* the caller has filled in the actual game content
+  // (which happens synchronously right after this function returns).
+  requestAnimationFrame(() => {
+    const rect = card.getBoundingClientRect();
+    card.style.left = Math.max(4, rect.left) + 'px';
+    card.style.top = Math.max(4, rect.top) + 'px';
+    card.style.transform = 'none';
+  });
   return card.querySelector('.game-body');
 }
 
@@ -1345,7 +1349,18 @@ function launchChess() {
         const light = (r + c) % 2 === 0;
         sq.style.cssText = `width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;cursor:pointer;background:${light ? '#eeeed2' : '#769656'};position:relative;`;
         const piece = board[r][c];
-        if (piece) sq.textContent = PIECE_GLYPHS[piece.color + piece.type];
+        if (piece) {
+          sq.textContent = PIECE_GLYPHS[piece.color + piece.type];
+          if (piece.color === 'w') {
+            sq.style.color = '#fefefe';
+            sq.style.webkitTextStroke = '1.5px #111';
+            sq.style.textShadow = '0 0 3px #000, 0 0 5px #000';
+          } else {
+            sq.style.color = '#111';
+            sq.style.webkitTextStroke = '1.5px #fefefe';
+            sq.style.textShadow = '0 0 3px #fff, 0 0 5px #fff';
+          }
+        }
         if (selected && selected[0] === r && selected[1] === c) sq.style.outline = '3px solid #0a3faa';
         if (legalTargets.some((m) => m.to[0] === r && m.to[1] === c)) {
           const dot = document.createElement('div');
@@ -1406,6 +1421,14 @@ function launchPinball() {
   const leftFlipper = { pivot: { x: 95, y: 430 }, restAngle: 0.55, activeAngle: -0.55, angle: 0.55, active: false };
   const rightFlipper = { pivot: { x: 205, y: 430 }, restAngle: Math.PI - 0.55, activeAngle: Math.PI + 0.55, angle: Math.PI - 0.55, active: false };
 
+  // Bouncy diagonal guide walls funneling balls toward each flipper
+  // instead of letting them drop straight down the outlanes.
+  const WALLS = [
+    { a: { x: 12, y: 355 }, b: { x: 85, y: 430 } },
+    { a: { x: 288, y: 355 }, b: { x: 215, y: 430 } },
+  ];
+  const WALL_BOUNCE = 1.25;
+
   let ball = null;
   let score = 0, balls = 3, over = false;
 
@@ -1457,6 +1480,24 @@ function launchPinball() {
     return { x: a.x + abx * t, y: a.y + aby * t };
   }
 
+  function collideWall(seg) {
+    const closest = closestPointOnSegment(ball, seg.a, seg.b);
+    const dx = ball.x - closest.x, dy = ball.y - closest.y;
+    const dist = Math.hypot(dx, dy);
+    const minDist = ball.r + 4;
+    if (dist < minDist && dist > 0) {
+      const nx = dx / dist, ny = dy / dist;
+      ball.x = closest.x + nx * minDist;
+      ball.y = closest.y + ny * minDist;
+      const dot = ball.vx * nx + ball.vy * ny;
+      if (dot < 0) {
+        ball.vx -= (1 + WALL_BOUNCE) * dot * nx;
+        ball.vy -= (1 + WALL_BOUNCE) * dot * ny;
+        playSound('click');
+      }
+    }
+  }
+
   function collideFlipper(fl) {
     const tip = flipperTip(fl);
     const closest = closestPointOnSegment(ball, fl.pivot, tip);
@@ -1502,6 +1543,8 @@ function launchPinball() {
           }
         });
 
+        WALLS.forEach(collideWall);
+
         updateFlipper(leftFlipper);
         updateFlipper(rightFlipper);
         collideFlipper(leftFlipper);
@@ -1546,6 +1589,16 @@ function launchPinball() {
       ctx.stroke();
     });
 
+    ctx.strokeStyle = '#e2a300';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    WALLS.forEach((seg) => {
+      ctx.beginPath();
+      ctx.moveTo(seg.a.x, seg.a.y);
+      ctx.lineTo(seg.b.x, seg.b.y);
+      ctx.stroke();
+    });
+
     drawFlipper(leftFlipper);
     drawFlipper(rightFlipper);
 
@@ -1581,3 +1634,267 @@ function launchPinball() {
   requestAnimationFrame(step);
 }
 GAMES.push({ icon: '&#128377;&#65039;', title: 'Pinball', launch: launchPinball });
+
+/* ══════════════ NOTEPAD ══════════════ */
+function launchNotepad() {
+  const body = createGameWindow('app-notepad', '&#128221;', 'Notepad', 480);
+  if (body.dataset.mounted) return;
+  body.dataset.mounted = '1';
+
+  body.innerHTML = `
+    <div class="game-toolbar">
+      <button class="btn" id="np-new">New</button>
+      <button class="btn" id="np-save">Save As .txt</button>
+      <span class="game-status" id="np-count" style="margin:0"></span>
+    </div>
+    <textarea id="np-text" style="width:100%;min-height:280px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.5rem;border:1px solid #8f8f8f;border-radius:2px;"></textarea>
+  `;
+  const textarea = body.querySelector('#np-text');
+  const countEl = body.querySelector('#np-count');
+  const STORAGE_KEY = 'tbj-notepad-content';
+
+  textarea.value = localStorage.getItem(STORAGE_KEY) || '';
+
+  function updateCount() {
+    const trimmed = textarea.value.trim();
+    const words = trimmed ? trimmed.split(/\s+/).length : 0;
+    countEl.textContent = `${textarea.value.length} chars · ${words} words`;
+  }
+
+  textarea.addEventListener('input', () => {
+    localStorage.setItem(STORAGE_KEY, textarea.value);
+    updateCount();
+  });
+
+  body.querySelector('#np-new').addEventListener('click', () => {
+    if (textarea.value && !confirm('Clear the current document?')) return;
+    textarea.value = '';
+    localStorage.setItem(STORAGE_KEY, '');
+    updateCount();
+    playSound('click');
+  });
+
+  body.querySelector('#np-save').addEventListener('click', () => {
+    const blob = new Blob([textarea.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'notes.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    playSound('notify');
+  });
+
+  updateCount();
+}
+
+/* ══════════════ MS PAINT ══════════════ */
+function launchPaint() {
+  const body = createGameWindow('app-paint', '&#127912;', 'Paint', 560);
+  if (body.dataset.mounted) return;
+  body.dataset.mounted = '1';
+
+  const COLORS = [
+    '#000000', '#7f7f7f', '#880015', '#ed1c24', '#ff7f27', '#fff200',
+    '#22b14c', '#00a2e8', '#3f48cc', '#a349a4', '#ffffff', '#c3c3c3',
+    '#b97a57', '#ffaec9', '#99d9ea', '#7092be',
+  ];
+
+  body.innerHTML = `
+    <div class="game-toolbar" style="flex-wrap:wrap">
+      <div id="paint-swatches" style="display:flex;gap:2px;flex-wrap:wrap;width:172px"></div>
+      <label style="display:flex;align-items:center;gap:.3rem;font-size:.78rem">
+        Size <input type="range" id="paint-size" min="1" max="24" value="4">
+      </label>
+      <button class="btn" id="paint-pencil">Pencil</button>
+      <button class="btn" id="paint-eraser">Eraser</button>
+      <button class="btn" id="paint-clear">Clear</button>
+      <button class="btn" id="paint-save">Save As PNG</button>
+    </div>
+    <canvas id="paint-canvas" width="500" height="340" style="background:#fff;border:2px inset #888;display:block;margin:0 auto;cursor:crosshair;touch-action:none"></canvas>
+  `;
+  const canvas = body.querySelector('#paint-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const swatchesEl = body.querySelector('#paint-swatches');
+  const sizeInput = body.querySelector('#paint-size');
+  const eraserBtn = body.querySelector('#paint-eraser');
+  const pencilBtn = body.querySelector('#paint-pencil');
+  let color = '#000000';
+  let erasing = false;
+
+  function setErasing(v) {
+    erasing = v;
+    eraserBtn.style.borderColor = v ? 'var(--accent)' : '';
+    pencilBtn.style.borderColor = v ? '' : 'var(--accent)';
+  }
+
+  COLORS.forEach((c) => {
+    const sw = document.createElement('button');
+    sw.style.cssText = `width:20px;height:20px;background:${c};border:1px solid #888;cursor:pointer;padding:0;`;
+    sw.addEventListener('click', () => { color = c; setErasing(false); });
+    swatchesEl.appendChild(sw);
+  });
+
+  pencilBtn.addEventListener('click', () => setErasing(false));
+  eraserBtn.addEventListener('click', () => setErasing(true));
+  body.querySelector('#paint-clear').addEventListener('click', () => {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    playSound('click');
+  });
+  body.querySelector('#paint-save').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'painting.png';
+    a.click();
+    playSound('notify');
+  });
+
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) * (canvas.width / rect.width),
+      y: (clientY - rect.top) * (canvas.height / rect.height),
+    };
+  }
+
+  function startDraw(e) {
+    drawing = true;
+    const p = getPos(e);
+    lastX = p.x; lastY = p.y;
+    ctx.fillStyle = erasing ? '#ffffff' : color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, sizeInput.value / 2, 0, Math.PI * 2);
+    ctx.fill();
+    e.preventDefault();
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    const p = getPos(e);
+    ctx.strokeStyle = erasing ? '#ffffff' : color;
+    ctx.lineWidth = sizeInput.value;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+    e.preventDefault();
+  }
+
+  function endDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw);
+  canvas.addEventListener('touchmove', draw);
+  window.addEventListener('touchend', endDraw);
+}
+
+/* ══════════════ MEDIA PLAYER VISUALIZER ══════════════ */
+function launchMediaPlayer() {
+  const body = createGameWindow('app-mediaplayer', '&#127925;', 'Windows Media Player', 420);
+  if (body.dataset.mounted) return;
+  body.dataset.mounted = '1';
+
+  body.innerHTML = `
+    <div class="game-toolbar">
+      <input type="file" id="wmp-file" accept="audio/*" style="font-size:.75rem;max-width:180px">
+      <button class="btn" id="wmp-play" disabled>&#9654; Play</button>
+    </div>
+    <canvas id="wmp-canvas" width="380" height="220" style="background:#000;border-radius:4px;display:block;margin:0 auto"></canvas>
+    <p class="game-status" id="wmp-status">Load a track to visualize it.</p>
+  `;
+  const fileInput = body.querySelector('#wmp-file');
+  const playBtn = body.querySelector('#wmp-play');
+  const canvas = body.querySelector('#wmp-canvas');
+  const ctx = canvas.getContext('2d');
+  const statusEl = body.querySelector('#wmp-status');
+  const card = document.getElementById('app-mediaplayer');
+
+  const audio = new Audio();
+  let audioCtx2 = null, analyser = null, dataArray = null;
+  let hue = 200;
+
+  function ensureAnalyser() {
+    if (analyser) return;
+    audioCtx2 = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx2.createAnalyser();
+    analyser.fftSize = 128;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const source = audioCtx2.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx2.destination);
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    audio.src = URL.createObjectURL(file);
+    playBtn.disabled = false;
+    statusEl.textContent = `Loaded: ${file.name}`;
+  });
+
+  playBtn.addEventListener('click', () => {
+    ensureAnalyser();
+    if (audioCtx2.state === 'suspended') audioCtx2.resume();
+    if (audio.paused) {
+      audio.play();
+      playBtn.innerHTML = '&#9208; Pause';
+    } else {
+      audio.pause();
+      playBtn.innerHTML = '&#9654; Play';
+    }
+  });
+
+  audio.addEventListener('ended', () => { playBtn.innerHTML = '&#9654; Play'; });
+
+  function renderIdle() {
+    const t = Date.now() / 1000;
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = `hsl(${(t * 20) % 360},70%,55%)`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x < canvas.width; x++) {
+      const y = canvas.height / 2 + Math.sin(x * 0.03 + t * 2) * 20 * Math.sin(t);
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function renderBars() {
+    analyser.getByteFrequencyData(dataArray);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const barCount = dataArray.length;
+    const barWidth = canvas.width / barCount;
+    hue += 0.5;
+    for (let i = 0; i < barCount; i++) {
+      const v = dataArray[i] / 255;
+      const barHeight = v * canvas.height;
+      ctx.fillStyle = `hsl(${(hue + i * 3) % 360},80%,55%)`;
+      ctx.fillRect(i * barWidth, canvas.height - barHeight, barWidth - 1, barHeight);
+    }
+  }
+
+  function loop() {
+    if (!card.classList.contains('wm-closed')) {
+      if (analyser && !audio.paused) renderBars();
+      else renderIdle();
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}

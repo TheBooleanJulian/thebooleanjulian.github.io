@@ -614,6 +614,18 @@
       <span class="desktop-icon-glyph">&#127918;</span>
       <span class="desktop-icon-label">Games</span>
     </button>
+    <button class="desktop-icon" id="icon-notepad" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#128221;</span>
+      <span class="desktop-icon-label">Notepad</span>
+    </button>
+    <button class="desktop-icon" id="icon-paint" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#127912;</span>
+      <span class="desktop-icon-label">Paint</span>
+    </button>
+    <button class="desktop-icon" id="icon-mediaplayer" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#127925;</span>
+      <span class="desktop-icon-label">Media Player</span>
+    </button>
     <button class="desktop-icon" id="icon-recyclebin" title="Double-click to open">
       <span class="desktop-icon-glyph">&#128465;&#65039;</span>
       <span class="desktop-icon-label">Recycle Bin</span>
@@ -725,6 +737,9 @@
       <div class="start-menu-right">
         <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128187;</span> My Computer</button>
         <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128194;</span> My Documents</button>
+        <button class="start-menu-item" data-action="open-notepad"><span class="smi-icon">&#128221;</span> Notepad</button>
+        <button class="start-menu-item" data-action="open-paint"><span class="smi-icon">&#127912;</span> Paint</button>
+        <button class="start-menu-item" data-action="open-mediaplayer"><span class="smi-icon">&#127925;</span> Media Player</button>
         <button class="start-menu-item" data-action="recyclebin"><span class="smi-icon">&#128465;&#65039;</span> Recycle Bin</button>
       </div>
     </div>
@@ -1143,6 +1158,9 @@
       if (action === 'open-hero') openWindow('window-hero');
       else if (action === 'open-projects') openWindow('window-projects');
       else if (action === 'open-games') openGameCenter();
+      else if (action === 'open-notepad') launchNotepad();
+      else if (action === 'open-paint') launchPaint();
+      else if (action === 'open-mediaplayer') launchMediaPlayer();
       else if (action === 'recyclebin') showRecycleBin();
       else if (action === 'log-off') doLogOff();
       else if (action === 'shutdown') doShutdown();
@@ -1172,6 +1190,9 @@
     attachActivate(document.getElementById('icon-projects'), () => openWindow('window-projects'));
     attachActivate(document.getElementById('icon-github'), () => window.open('https://github.com/TheBooleanJulian', '_blank', 'noopener'));
     attachActivate(document.getElementById('icon-games'), () => openGameCenter());
+    attachActivate(document.getElementById('icon-notepad'), () => launchNotepad());
+    attachActivate(document.getElementById('icon-paint'), () => launchPaint());
+    attachActivate(document.getElementById('icon-mediaplayer'), () => launchMediaPlayer());
     attachActivate(document.getElementById('icon-recyclebin'), showRecycleBin);
 
     /* ══════════════ BOOT / SHUTDOWN SCREEN ══════════════ */
