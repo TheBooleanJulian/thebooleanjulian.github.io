@@ -237,7 +237,7 @@
     }
     .xp-title-text a { color: inherit; text-decoration: none; }
     .xp-title-text a::after { content: ''; position: absolute; inset: 0; }
-    .xp-titlebar-btns { display: flex; gap: 2px; flex-shrink: 0; }
+    .xp-titlebar-btns { display: flex; gap: 2px; flex-shrink: 0; position: relative; z-index: 2; }
     .xp-btn {
       width: 16px; height: 14px;
       border-radius: 2px;
@@ -354,8 +354,187 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    /* ── BOOT / SHUTDOWN SCREEN ── */
+    .boot-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1.5rem;
+      color: #fff;
+      transition: opacity .6s ease;
+    }
+    .boot-logo {
+      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.6rem;
+      letter-spacing: .02em;
+    }
+    .boot-logo span { color: var(--accent-light); }
+    .boot-bar {
+      width: 220px; height: 12px;
+      border: 1px solid #666; border-radius: 2px;
+      overflow: hidden;
+      background: #111;
+    }
+    .boot-bar-fill {
+      width: 40%; height: 100%;
+      background: linear-gradient(90deg,#0a3faa,#3d94f6,#0a3faa);
+      background-size: 200% 100%;
+      animation: boot-fill 1.1s linear infinite;
+    }
+    @keyframes boot-fill { from { background-position: 0% 0; } to { background-position: -200% 0; } }
+    .boot-caption { font-size: .75rem; color: #999; }
+    .boot-screen.hidden { opacity: 0; pointer-events: none; }
+    .boot-screen.shutdown .boot-caption { cursor: default; }
+    .boot-screen.shutdown .boot-restart {
+      margin-top: .5rem;
+      display: none;
+    }
+    .boot-screen.shutdown.ready .boot-restart { display: inline-flex; }
+    .boot-screen.shutdown .boot-bar { display: none; }
+    .boot-screen.shutdown.ready .boot-bar { display: none; }
+
+    /* ── DESKTOP ICONS ── */
+    .desktop-icons {
+      position: fixed; top: 14px; left: 14px; z-index: 1;
+      display: flex; flex-direction: column; gap: 1.1rem;
+    }
+    .desktop-icon {
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      width: 78px;
+      background: none; border: none; cursor: pointer;
+      font-family: Tahoma, sans-serif;
+      padding: .35rem .2rem;
+      border-radius: 3px;
+    }
+    .desktop-icon:hover, .desktop-icon:focus-visible { background: rgba(255,255,255,.15); outline: 1px dotted rgba(255,255,255,.5); }
+    .desktop-icon-glyph {
+      font-size: 1.8rem;
+      filter: drop-shadow(1px 2px 2px rgba(0,0,0,.5));
+    }
+    .desktop-icon-label {
+      font-size: .72rem; color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,.8);
+      text-align: center; line-height: 1.2;
+    }
+    @media (max-width: 1080px) {
+      .desktop-icons { display: none; }
+    }
+
+    /* ── START MENU ── */
+    .start-menu {
+      position: fixed; left: 4px; bottom: 36px; z-index: 300;
+      width: 300px;
+      display: flex; flex-direction: column;
+      border-radius: 8px 8px 4px 4px;
+      overflow: hidden;
+      box-shadow: 3px 3px 14px rgba(0,0,0,.5);
+      border: 1px solid #0a3faa;
+      transform-origin: bottom left;
+      transform: scale(.95); opacity: 0; pointer-events: none;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    .start-menu.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+    .start-menu-header {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .6rem .7rem;
+      background: linear-gradient(180deg,#3d94f6,#1657d0 60%,#0b3fa8);
+      color: #fff;
+    }
+    .start-menu-header img {
+      width: 34px; height: 34px; border-radius: 4px;
+      border: 2px solid rgba(255,255,255,.8);
+    }
+    .start-menu-header b { font-size: .85rem; }
+    .start-menu-body { display: flex; background: #fff; }
+    .start-menu-left { flex: 1.4; padding: .4rem 0; }
+    .start-menu-right {
+      flex: 1; padding: .4rem 0;
+      background: #d8e4f8;
+      border-left: 1px solid #b8c9e8;
+    }
+    .start-menu-item {
+      display: flex; align-items: center; gap: .55rem;
+      width: 100%;
+      padding: .4rem .7rem;
+      background: none; border: none; text-decoration: none;
+      font-family: Tahoma, sans-serif; font-size: .78rem; color: var(--text);
+      cursor: pointer; text-align: left;
+    }
+    .start-menu-item:hover { background: var(--accent); color: #fff; }
+    .start-menu-item span.smi-icon { font-size: 1rem; width: 1.2rem; text-align: center; }
+    .start-menu-footer {
+      display: flex; justify-content: flex-end; gap: .5rem;
+      padding: .5rem .7rem;
+      background: var(--silver);
+      border-top: 1px solid #b8b3a0;
+    }
+    .start-menu-footer button {
+      display: flex; align-items: center; gap: .4rem;
+      font-family: Tahoma, sans-serif; font-size: .75rem;
+      padding: .3rem .6rem;
+      background: linear-gradient(180deg,#fefefe,#ece9d8 60%,#d4d0c8);
+      border: 1px solid #8f8f8f; border-radius: 3px;
+      cursor: pointer;
+    }
+    .start-menu-footer button:hover { border-color: var(--accent); }
+
+    /* ── WINDOW MANAGER (drag / minimize / maximize / close) ── */
+    .xp-titlebar { cursor: grab; }
+    .card.wm-dragging { cursor: grabbing; transition: none !important; user-select: none; }
+    .card.wm-dragging .xp-titlebar { cursor: grabbing; }
+    .card.wm-floating { position: fixed; z-index: 300; }
+    .card.wm-maximized {
+      position: fixed !important;
+      inset: 6px 6px 40px !important;
+      width: auto !important; height: auto !important;
+      z-index: 400;
+      max-width: none;
+    }
+    .card.wm-maximized .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .card.wm-closed { display: none !important; }
+    .xp-btn { cursor: pointer; }
+    .xp-btn:hover { filter: brightness(1.08); }
+    .xp-btn:active { filter: brightness(.92); }
+    .taskbar-item-window { position: relative; }
+    .taskbar-item-window.active { background: rgba(255,255,255,.3); border-color: rgba(255,255,255,.4); }
+
+    /* ── SORT / FILTER BAR ── */
+    .xp-addressbar { flex-wrap: wrap; }
+    .xp-filterbar { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
+    .xp-filterbar select {
+      font-family: Tahoma, sans-serif; font-size: .74rem;
+      padding: .15rem .3rem;
+      border: 1px solid #8f8f8f; border-radius: 2px;
+      background: #fff; color: var(--text);
+    }
+
+    /* ── SOUND TOGGLE ── */
+    .sound-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 25px; height: 25px;
+      background: none; border: none; cursor: pointer;
+      font-size: .85rem;
+      flex-shrink: 0;
+    }
+    .sound-toggle:hover { background: rgba(255,255,255,.15); border-radius: 3px; }
+
+    /* ── MESSAGE BOX ── */
+    .msgbox-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.35);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .msgbox { width: min(320px, 100%); box-shadow: 3px 4px 20px rgba(0,0,0,.6); }
+    .msgbox .xp-body { gap: .9rem; }
+    .msgbox p { font-size: .82rem; color: #333; }
+
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .cloud-1, .cloud-2, .hero-avatar, .tray-colon {
+      .cloud-1, .cloud-2, .hero-avatar, .tray-colon, .boot-bar-fill {
         animation: none;
       }
     }
@@ -366,17 +545,45 @@
       .hero-links { justify-content: center; }
       .hero-bio { margin: 0 auto; }
       .taskbar-item span.item-label { display: none; }
+      .start-menu { width: calc(100vw - 16px); left: 8px; }
+      .card.wm-maximized { inset: 4px 4px 40px !important; }
     }
   </style>
 </head>
 <body>
 
+  <div class="boot-screen" id="boot-screen">
+    <div class="boot-logo">The <span>Boolean</span> Julian</div>
+    <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+    <div class="boot-caption" id="boot-caption">Starting up&hellip;</div>
+    <button class="btn boot-restart" id="boot-restart-btn">&#8635; Restart</button>
+  </div>
+
   <div class="cloud cloud-1"></div>
   <div class="cloud cloud-2"></div>
 
+  <div class="desktop-icons">
+    <button class="desktop-icon" id="icon-about" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#128421;&#65039;</span>
+      <span class="desktop-icon-label">My Computer</span>
+    </button>
+    <button class="desktop-icon" id="icon-projects" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#128193;</span>
+      <span class="desktop-icon-label">My Projects</span>
+    </button>
+    <button class="desktop-icon" id="icon-github" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#128025;</span>
+      <span class="desktop-icon-label">GitHub</span>
+    </button>
+    <button class="desktop-icon" id="icon-recyclebin" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#128465;&#65039;</span>
+      <span class="desktop-icon-label">Recycle Bin</span>
+    </button>
+  </div>
+
   <!-- HERO -->
   <div class="hero-wrap">
-    <div class="card hero-window">
+    <div class="card hero-window" id="window-hero">
       <div class="xp-titlebar">
         <div class="xp-titlebar-left">
           <span class="xp-icon">&#128421;&#65039;</span>
@@ -415,7 +622,7 @@
 
   <!-- PROJECTS (dynamically populated) -->
   <section id="projects">
-    <div class="card">
+    <div class="card" id="window-projects">
       <div class="xp-titlebar">
         <div class="xp-titlebar-left">
           <span class="xp-icon">&#128193;</span>
@@ -429,6 +636,18 @@
       </div>
       <div class="xp-addressbar">
         <span>&#128193;</span> Address: <b>C:\Users\Julian\Projects</b>
+        <div class="xp-filterbar">
+          <label for="sort-select" class="visually-hidden">Sort</label>
+          <select id="sort-select">
+            <option value="updated">Sort: Recently updated</option>
+            <option value="stars">Sort: Stars</option>
+            <option value="name">Sort: Name (A-Z)</option>
+          </select>
+          <label for="lang-select" class="visually-hidden">Filter by language</label>
+          <select id="lang-select">
+            <option value="">All languages</option>
+          </select>
+        </div>
       </div>
       <div class="xp-body">
         <div class="section-header">
@@ -451,16 +670,41 @@
     <p style="margin-top:.3rem">&copy; 2026 The Boolean Julian &middot; Singapore</p>
   </footer>
 
+  <div class="start-menu" id="start-menu">
+    <div class="start-menu-header">
+      <img src="https://avatars.githubusercontent.com/u/20150202?v=4" alt="">
+      <b>The Boolean Julian</b>
+    </div>
+    <div class="start-menu-body">
+      <div class="start-menu-left">
+        <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128421;&#65039;</span> About Me</button>
+        <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128193;</span> My Projects</button>
+        <a class="start-menu-item" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener"><span class="smi-icon">&#128025;</span> GitHub</a>
+        <a class="start-menu-item" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener"><span class="smi-icon">&#128188;</span> LinkedIn</a>
+      </div>
+      <div class="start-menu-right">
+        <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128187;</span> My Computer</button>
+        <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128194;</span> My Documents</button>
+        <button class="start-menu-item" data-action="recyclebin"><span class="smi-icon">&#128465;&#65039;</span> Recycle Bin</button>
+      </div>
+    </div>
+    <div class="start-menu-footer">
+      <button data-action="log-off">&#128100; Log Off</button>
+      <button data-action="shutdown">&#9210; Turn Off Computer</button>
+    </div>
+  </div>
+
   <div class="taskbar">
-    <a class="start-btn" href="#">
+    <button class="start-btn" id="start-btn" aria-expanded="false">
       <span class="start-icon">&#8862;</span> start
-    </a>
+    </button>
     <div class="taskbar-sep"></div>
-    <div class="taskbar-items">
+    <div class="taskbar-items" id="taskbar-items">
       <a class="taskbar-item" href="#projects"><span>&#128193;</span><span class="item-label">Projects</span></a>
       <a class="taskbar-item" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener"><span>&#128025;</span><span class="item-label">GitHub</span></a>
     </div>
     <div class="taskbar-tray">
+      <button class="sound-toggle" id="sound-toggle" title="Sound is off" aria-label="Toggle sound effects">&#128264;</button>
       <span id="clock"></span>
     </div>
   </div>
@@ -571,9 +815,39 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    async function loadRepos() {
+    let allRepos = [];
+
+    function populateLangFilter(repos) {
+      const langs = [...new Set(repos.map(r => r.language).filter(Boolean))].sort();
+      const sel = document.getElementById('lang-select');
+      langs.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        sel.appendChild(opt);
+      });
+    }
+
+    function applyFiltersAndRender() {
       const grid  = document.getElementById('repo-grid');
       const count = document.getElementById('repo-count');
+      const sortBy = document.getElementById('sort-select').value;
+      const lang   = document.getElementById('lang-select').value;
+
+      let list = lang ? allRepos.filter(r => r.language === lang) : allRepos.slice();
+
+      if (sortBy === 'stars') list.sort((a, b) => b.stargazers_count - a.stargazers_count);
+      else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+      else list.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+
+      count.textContent = `${list.length} repo${list.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = list.length
+        ? list.map(renderCard).join('')
+        : '<div class="state-msg">No repos match this filter.</div>';
+    }
+
+    async function loadRepos() {
+      const grid  = document.getElementById('repo-grid');
 
       try {
         const res = await fetch(
@@ -584,16 +858,16 @@
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
 
         const repos = (await res.json())
-          .filter(r => !r.fork && !r.archived && !SKIP_REPOS.has(r.name))
-          .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+          .filter(r => !r.fork && !r.archived && !SKIP_REPOS.has(r.name));
 
         if (repos.length === 0) {
           grid.innerHTML = '<div class="state-msg">No public repos found.</div>';
           return;
         }
 
-        count.textContent = `${repos.length} repos`;
-        grid.innerHTML = repos.map(renderCard).join('');
+        allRepos = repos;
+        populateLangFilter(repos);
+        applyFiltersAndRender();
 
       } catch (err) {
         grid.innerHTML = `
@@ -608,6 +882,9 @@
 
     loadRepos();
 
+    document.getElementById('sort-select').addEventListener('change', applyFiltersAndRender);
+    document.getElementById('lang-select').addEventListener('change', applyFiltersAndRender);
+
     function updateClock() {
       const clock = document.getElementById('clock');
       const now = new Date();
@@ -619,6 +896,285 @@
     }
     updateClock();
     setInterval(updateClock, 1000 * 30);
+
+    /* ══════════════ SOUND SYSTEM ══════════════ */
+    let audioCtx = null;
+    let soundOn = false;
+
+    function getCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function beep(freq, duration, type, delay, gainVal) {
+      const ctx = getCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      osc.connect(gain).connect(ctx.destination);
+      const t0 = ctx.currentTime + delay;
+      gain.gain.setValueAtTime(gainVal, t0);
+      gain.gain.exponentialRampToValueAtTime(.001, t0 + duration);
+      osc.start(t0);
+      osc.stop(t0 + duration + .02);
+    }
+
+    function playSound(kind) {
+      if (!soundOn) return;
+      if (kind === 'click') beep(740, .06, 'square', 0, .04);
+      else if (kind === 'notify') { beep(880, .09, 'sine', 0, .05); beep(1175, .12, 'sine', .09, .05); }
+      else if (kind === 'startup') { beep(523, .15, 'sine', 0, .05); beep(659, .15, 'sine', .15, .05); beep(784, .25, 'sine', .3, .05); }
+      else if (kind === 'shutdown') { beep(784, .15, 'sine', 0, .05); beep(659, .15, 'sine', .15, .05); beep(523, .3, 'sine', .3, .05); }
+    }
+
+    const soundToggle = document.getElementById('sound-toggle');
+    soundToggle.addEventListener('click', () => {
+      soundOn = !soundOn;
+      soundToggle.textContent = soundOn ? '\u{1F50A}' : '\u{1F508}';
+      soundToggle.title = soundOn ? 'Sound is on' : 'Sound is off';
+      if (soundOn) {
+        const ctx = getCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        playSound('startup');
+      }
+    });
+
+    /* ══════════════ MESSAGE BOX ══════════════ */
+    function showMessageBox(title, icon, bodyHtml) {
+      const overlay = document.createElement('div');
+      overlay.className = 'msgbox-overlay';
+      overlay.innerHTML = `
+        <div class="card msgbox">
+          <div class="xp-titlebar">
+            <div class="xp-titlebar-left">
+              <span class="xp-icon">${icon}</span>
+              <span class="xp-title-text">${escHtml(title)}</span>
+            </div>
+            <div class="xp-titlebar-btns">
+              <span class="xp-btn xp-btn-close" data-msgbox-close>&times;</span>
+            </div>
+          </div>
+          <div class="xp-body">
+            <p>${bodyHtml}</p>
+            <div style="text-align:right">
+              <button class="btn btn-primary" data-msgbox-close>OK</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.closest('[data-msgbox-close]')) overlay.remove();
+      });
+      playSound('notify');
+    }
+
+    /* ══════════════ WINDOW MANAGER ══════════════ */
+    let topZ = 300;
+    let widCounter = 1;
+
+    function bringToFront(card) {
+      if (card.classList.contains('wm-maximized')) return;
+      topZ += 1;
+      card.style.zIndex = topZ;
+    }
+
+    function ensureWid(card) {
+      if (!card.dataset.wid) card.dataset.wid = 'w' + (widCounter++);
+      return card.dataset.wid;
+    }
+
+    function hideToTaskbar(card) {
+      const wid = ensureWid(card);
+      card.classList.add('wm-closed');
+      if (document.querySelector(`.taskbar-item-window[data-wid="${wid}"]`)) return;
+
+      const icon  = card.querySelector('.xp-icon')?.innerHTML ?? '&#128193;';
+      const label = card.querySelector('.xp-title-text')?.textContent.trim() ?? 'Window';
+
+      const chip = document.createElement('button');
+      chip.className = 'taskbar-item taskbar-item-window';
+      chip.dataset.wid = wid;
+      chip.innerHTML = `<span>${icon}</span><span class="item-label">${escHtml(label)}</span>`;
+      chip.addEventListener('click', () => restoreWindow(card));
+      document.getElementById('taskbar-items').appendChild(chip);
+      playSound('click');
+    }
+
+    function restoreWindow(card) {
+      const wid = card.dataset.wid;
+      card.classList.remove('wm-closed');
+      const chip = document.querySelector(`.taskbar-item-window[data-wid="${wid}"]`);
+      if (chip) chip.remove();
+      bringToFront(card);
+      playSound('click');
+    }
+
+    function toggleMaximize(card) {
+      if (card.classList.contains('wm-maximized')) {
+        card.classList.remove('wm-maximized');
+        card.style.cssText = card.dataset.prevStyle || '';
+        delete card.dataset.prevStyle;
+      } else {
+        card.dataset.prevStyle = card.style.cssText;
+        card.classList.add('wm-maximized');
+        bringToFront(card);
+      }
+      playSound('click');
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.xp-btn');
+      if (!btn || btn.hasAttribute('data-msgbox-close')) return;
+      const card = btn.closest('.card');
+      if (!card) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.classList.contains('xp-btn-close')) hideToTaskbar(card);
+      else if (btn.classList.contains('xp-btn-min')) hideToTaskbar(card);
+      else if (btn.classList.contains('xp-btn-max')) toggleMaximize(card);
+    }, true);
+
+    // Dragging windows by their titlebar
+    let dragState = null;
+
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      const titlebar = e.target.closest('.xp-titlebar');
+      if (!titlebar || e.target.closest('.xp-titlebar-btns')) return;
+      const card = titlebar.closest('.card');
+      if (!card) return;
+
+      bringToFront(card);
+      const rect = card.getBoundingClientRect();
+      dragState = {
+        card,
+        startX: e.clientX, startY: e.clientY,
+        origLeft: rect.left, origTop: rect.top, origWidth: rect.width,
+        moved: false,
+        link: e.target.closest('a'),
+      };
+    });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!dragState) return;
+      const { card } = dragState;
+      if (card.classList.contains('wm-maximized')) return;
+
+      const dx = e.clientX - dragState.startX;
+      const dy = e.clientY - dragState.startY;
+
+      if (!dragState.moved) {
+        if (Math.hypot(dx, dy) < 5) return;
+        dragState.moved = true;
+        card.classList.add('wm-floating', 'wm-dragging');
+        card.style.left = dragState.origLeft + 'px';
+        card.style.top = dragState.origTop + 'px';
+        card.style.width = dragState.origWidth + 'px';
+        card.style.margin = '0';
+      }
+
+      card.style.left = (dragState.origLeft + dx) + 'px';
+      card.style.top = (dragState.origTop + dy) + 'px';
+    });
+
+    document.addEventListener('pointerup', () => {
+      if (!dragState) return;
+      const { card, moved, link } = dragState;
+      card.classList.remove('wm-dragging');
+      if (moved && link) {
+        const suppress = (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          link.removeEventListener('click', suppress, true);
+        };
+        link.addEventListener('click', suppress, true);
+      }
+      dragState = null;
+    });
+
+    function openWindow(id) {
+      const card = document.getElementById(id);
+      if (!card) return;
+      if (card.classList.contains('wm-closed')) restoreWindow(card);
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      bringToFront(card);
+    }
+
+    /* ══════════════ START MENU ══════════════ */
+    const startBtn  = document.getElementById('start-btn');
+    const startMenu = document.getElementById('start-menu');
+
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = startMenu.classList.toggle('open');
+      startBtn.setAttribute('aria-expanded', String(open));
+      playSound('click');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (startMenu.classList.contains('open') && !startMenu.contains(e.target) && e.target !== startBtn) {
+        startMenu.classList.remove('open');
+        startBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    startMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-action]');
+      if (!item) return;
+      const action = item.dataset.action;
+      if (action === 'open-hero') openWindow('window-hero');
+      else if (action === 'open-projects') openWindow('window-projects');
+      else if (action === 'recyclebin') showRecycleBin();
+      else if (action === 'shutdown') doShutdown();
+      startMenu.classList.remove('open');
+      startBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    function showRecycleBin() {
+      showMessageBox(
+        'Recycle Bin',
+        '&#128465;&#65039;',
+        'The Recycle Bin is empty.<br><span style="font-size:.75rem;color:#777">(Nothing gets deleted around here — just closed windows.)</span>'
+      );
+    }
+
+    /* ══════════════ DESKTOP ICONS ══════════════ */
+    function attachActivate(el, fn) {
+      let last = 0;
+      el.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - last < 450) { last = 0; fn(); }
+        else { last = now; }
+      });
+    }
+
+    attachActivate(document.getElementById('icon-about'), () => openWindow('window-hero'));
+    attachActivate(document.getElementById('icon-projects'), () => openWindow('window-projects'));
+    attachActivate(document.getElementById('icon-github'), () => window.open('https://github.com/TheBooleanJulian', '_blank', 'noopener'));
+    attachActivate(document.getElementById('icon-recyclebin'), showRecycleBin);
+
+    /* ══════════════ BOOT / SHUTDOWN SCREEN ══════════════ */
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const bootScreen   = document.getElementById('boot-screen');
+    const bootCaption  = document.getElementById('boot-caption');
+
+    window.addEventListener('load', () => {
+      setTimeout(() => bootScreen.classList.add('hidden'), reducedMotion ? 0 : 1200);
+    });
+
+    function doShutdown() {
+      bootScreen.classList.remove('hidden');
+      bootScreen.classList.add('shutdown');
+      bootCaption.textContent = 'Shutting down…';
+      playSound('shutdown');
+      setTimeout(() => {
+        bootCaption.textContent = "It's now safe to close this tab.";
+        bootScreen.classList.add('ready');
+      }, reducedMotion ? 0 : 1400);
+    }
+
+    document.getElementById('boot-restart-btn').addEventListener('click', () => location.reload());
   </script>
 
 </body>
