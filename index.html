@@ -259,6 +259,15 @@
       display: flex; flex-direction: column; gap: .6rem;
       flex: 1;
     }
+    .card-thumb {
+      display: block;
+      width: calc(100% + 2rem);
+      margin: -.9rem -1rem 0;
+      aspect-ratio: 1200 / 630;
+      object-fit: cover;
+      background: #dce8fb;
+      border-bottom: 1px solid #a8c4e0;
+    }
     .card-desc {
       font-size: .82rem; color: #444;
       flex: 1;
@@ -475,6 +484,29 @@
       C:          '#555555',
     };
 
+    // GitHub language → representative emoji icon
+    const LANG_ICONS = {
+      JavaScript: '&#128293;',
+      TypeScript: '&#128998;',
+      Python:     '&#128013;',
+      HTML:       '&#127760;',
+      CSS:        '&#127912;',
+      Shell:      '&#128187;',
+      Go:         '&#128039;',
+      Rust:       '&#9881;&#65039;',
+      Java:       '&#9749;',
+      'C++':      '&#9881;&#65039;',
+      C:          '&#9881;&#65039;',
+    };
+
+    function langIcon(lang) {
+      return LANG_ICONS[lang] ?? '&#128193;';
+    }
+
+    function thumbUrl(repo) {
+      return `https://opengraph.githubassets.com/1/${repo.full_name}`;
+    }
+
     function langDot(lang) {
       const color = lang ? (LANG_COLORS[lang] ?? '#888') : '#444';
       return `<span class="lang-dot" style="background:${color}"></span>
@@ -511,7 +543,7 @@
         <div class="card">
           <div class="xp-titlebar">
             <div class="xp-titlebar-left">
-              <span class="xp-icon">&#128193;</span>
+              <span class="xp-icon">${langIcon(repo.language)}</span>
               <span class="xp-title-text"><a href="${repo.html_url}" target="_blank" rel="noopener">${escHtml(repo.name)}</a></span>
             </div>
             <div class="xp-titlebar-btns">
@@ -521,6 +553,7 @@
             </div>
           </div>
           <div class="xp-body">
+            <img class="card-thumb" src="${thumbUrl(repo)}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.remove()">
             ${desc}
             <div class="card-footer">
               ${langDot(repo.language)}
