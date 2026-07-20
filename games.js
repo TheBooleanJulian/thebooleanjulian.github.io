@@ -26,6 +26,13 @@ function createGameWindow(id, icon, title, widthPx) {
     </div>
     <div class="xp-body game-body"></div>`;
   document.body.appendChild(card);
+  // Freeze the initial centered position in pixels so later content
+  // size changes (re-renders) don't shift the window via the
+  // percentage-based transform used for the first paint.
+  const rect = card.getBoundingClientRect();
+  card.style.left = rect.left + 'px';
+  card.style.top = rect.top + 'px';
+  card.style.transform = 'none';
   bringToFront(card);
   return card.querySelector('.game-body');
 }
