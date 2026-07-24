@@ -356,6 +356,15 @@
       font-size: .9rem;
     }
     .state-msg a { color: var(--accent); }
+    .state-msg-stale {
+      grid-column: unset;
+      padding: .5rem 1rem;
+      margin-bottom: 1rem;
+      text-align: left;
+      font-size: .8rem;
+      border: 1px dashed var(--muted);
+      border-radius: 4px;
+    }
     .spinner {
       display: inline-block;
       width: 20px; height: 20px;
@@ -1097,8 +1106,37 @@
       applyFiltersAndRender();
     });
 
+    const REPOS_CACHE_KEY = 'repoCache:' + GITHUB_USER;
+
+    function readReposCache() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(REPOS_CACHE_KEY));
+        return (cached && Array.isArray(cached.repos)) ? cached : null;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function writeReposCache(repos) {
+      try {
+        localStorage.setItem(REPOS_CACHE_KEY, JSON.stringify({ repos, savedAt: Date.now() }));
+      } catch (err) {
+        // Storage full/unavailable — caching is a nice-to-have, not required.
+      }
+    }
+
+    function showRepos(repos, staleNotice) {
+      allRepos = repos;
+      populateLangFilter(repos);
+      applyFiltersAndRender();
+      loadReadmeThumbnails(repos);
+      if (staleNotice) {
+        document.getElementById('repo-grid').insertAdjacentHTML('beforebegin', staleNotice);
+      }
+    }
+
     async function loadRepos() {
-      const grid  = document.getElementById('repo-grid');
+      const grid = document.getElementById('repo-grid');
 
       try {
         const res = await fetch(
@@ -1116,12 +1154,20 @@
           return;
         }
 
-        allRepos = repos;
-        populateLangFilter(repos);
-        applyFiltersAndRender();
-        loadReadmeThumbnails(repos);
+        writeReposCache(repos);
+        showRepos(repos, null);
 
       } catch (err) {
+        const cached = readReposCache();
+        if (cached) {
+          const ageMins = Math.max(1, Math.round((Date.now() - cached.savedAt) / 60000));
+          const ageText = ageMins < 60 ? `${ageMins} min ago` : `${Math.round(ageMins / 60)} hr ago`;
+          showRepos(cached.repos, `
+            <div class="state-msg state-msg-stale">
+              Live data unavailable (${escHtml(err.message)}) — showing cached results from ${ageText}.
+            </div>`);
+          return;
+        }
         grid.innerHTML = `
           <div class="state-msg">
             Could not load repos — ${escHtml(err.message)}.<br>
