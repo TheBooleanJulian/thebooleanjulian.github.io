@@ -203,6 +203,41 @@
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
     }
+    /* ── CATEGORY TABS ── */
+    .tab-bar {
+      display: flex; gap: .25rem; flex-wrap: wrap;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 1rem;
+    }
+    .category-tab {
+      display: flex; align-items: center; gap: .4rem;
+      font-family: Tahoma, sans-serif; font-size: .78rem;
+      padding: .45rem .8rem;
+      background: var(--silver-dark);
+      border: 1px solid #b8b3a0; border-bottom: 2px solid #ddd;
+      border-radius: 4px 4px 0 0;
+      cursor: pointer;
+      color: var(--muted);
+      margin-bottom: -2px;
+    }
+    .category-tab:hover { background: var(--silver); color: var(--text); }
+    .category-tab.active {
+      background: #fff;
+      color: var(--accent);
+      font-weight: 700;
+      border-color: var(--accent) var(--accent) #fff;
+    }
+    .category-tab-icon { font-size: .95rem; }
+    .category-tab-count {
+      font-size: .68rem;
+      background: var(--accent-dim); color: var(--accent);
+      padding: .05rem .4rem; border-radius: 8px;
+    }
+    .category-persona {
+      grid-column: 1 / -1;
+      font-size: .78rem; color: var(--muted); font-style: italic;
+      margin: -.25rem 0 .25rem;
+    }
     /* ── XP WINDOW CARD ── */
     .card {
       position: relative;
@@ -706,6 +741,7 @@
           <div class="section-line"></div>
           <span class="section-count" id="repo-count"></span>
         </div>
+        <div class="tab-bar" id="category-tabs"></div>
         <div class="grid" id="repo-grid">
           <div class="state-msg">
             <div class="spinner"></div><br>
@@ -926,6 +962,38 @@
 
     let allRepos = [];
 
+    // Group projects by the persona/use-case they're built for, rather than
+    // a flat list — matched against name, description, topics, and language.
+    const CATEGORIES = [
+      {
+        id: 'bots', icon: '&#129302;', label: 'Bots & Automations', persona: 'for anyone who wants a task off their plate',
+        match: (r, text) => /\bbot\b|telegram|discord|automation|scraper|cron|schedule/.test(text),
+      },
+      {
+        id: 'games', icon: '&#127918;', label: 'Games & Fun', persona: 'for players and the easily amused',
+        match: (r, text) => /\bgame\b|simulator|puzzle|arcade/.test(text),
+      },
+      {
+        id: 'web', icon: '&#127760;', label: 'Web Apps & Sites', persona: 'for people who just want it to work in a browser',
+        match: (r, text) => /\bweb\b|website|webapp|portfolio|landing|react|vue|next\.?js|frontend/.test(text)
+          || ['HTML', 'CSS'].includes(r.language),
+      },
+      {
+        id: 'tools', icon: '&#128295;', label: 'Dev Tools & Scripts', persona: 'for fellow developers and tinkerers',
+        match: (r, text) => /\btool\b|cli|script|utility|library|sdk|api/.test(text)
+          || ['Python', 'Shell', 'Go', 'Rust', 'C', 'C++'].includes(r.language),
+      },
+      {
+        id: 'other', icon: '&#128230;', label: 'Other Projects', persona: 'everything else',
+        match: () => true,
+      },
+    ];
+
+    function categorize(repo) {
+      const text = `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
+      return CATEGORIES.find((c) => c.match(repo, text)) ?? CATEGORIES[CATEGORIES.length - 1];
+    }
+
     function populateLangFilter(repos) {
       const langs = [...new Set(repos.map(r => r.language).filter(Boolean))].sort();
       const sel = document.getElementById('lang-select');
@@ -937,9 +1005,12 @@
       });
     }
 
+    let activeCategory = null;
+
     function applyFiltersAndRender() {
-      const grid  = document.getElementById('repo-grid');
-      const count = document.getElementById('repo-count');
+      const grid   = document.getElementById('repo-grid');
+      const count  = document.getElementById('repo-count');
+      const tabsEl = document.getElementById('category-tabs');
       const sortBy = document.getElementById('sort-select').value;
       const lang   = document.getElementById('lang-select').value;
 
@@ -950,10 +1021,43 @@
       else list.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
 
       count.textContent = `${list.length} repo${list.length !== 1 ? 's' : ''}`;
-      grid.innerHTML = list.length
-        ? list.map(renderCard).join('')
-        : '<div class="state-msg">No repos match this filter.</div>';
+
+      if (!list.length) {
+        tabsEl.innerHTML = '';
+        grid.innerHTML = '<div class="state-msg">No repos match this filter.</div>';
+        return;
+      }
+
+      const buckets = new Map(CATEGORIES.map((c) => [c.id, []]));
+      list.forEach((repo) => buckets.get(categorize(repo).id).push(repo));
+      const activeCats = CATEGORIES.filter((c) => buckets.get(c.id).length);
+
+      if (!activeCategory || !buckets.get(activeCategory).length) {
+        activeCategory = activeCats[0].id;
+      }
+
+      tabsEl.innerHTML = activeCats.map((cat) => `
+        <button class="category-tab ${cat.id === activeCategory ? 'active' : ''}" data-cat="${cat.id}">
+          <span class="category-tab-icon">${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="category-tab-count">${buckets.get(cat.id).length}</span>
+        </button>`).join('');
+
+      const activeCat = activeCats.find((c) => c.id === activeCategory);
+      const repos = buckets.get(activeCategory);
+      grid.innerHTML = `
+        <p class="category-persona">${activeCat.persona}</p>
+        ${repos.map(renderCard).join('')}
+      `;
     }
+
+    document.getElementById('category-tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('.category-tab');
+      if (!btn) return;
+      activeCategory = btn.dataset.cat;
+      playSound('click');
+      applyFiltersAndRender();
+    });
 
     async function loadRepos() {
       const grid  = document.getElementById('repo-grid');
