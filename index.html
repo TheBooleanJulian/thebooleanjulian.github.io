@@ -920,19 +920,24 @@
             return;
           }
         }
-        try {
-          const res = await fetch(
-            `https://api.github.com/repos/${repo.full_name}/readme`,
-            { headers: { Accept: 'application/vnd.github.raw' } }
-          );
-          if (!res.ok) return;
-          const text = await res.text();
-          const raw = extractReadmeImage(text);
-          if (!raw) return;
-          const url = resolveReadmeImageUrl(raw, repo);
-          setCardThumb(repo, url);
-        } catch (err) {
-          // Keep the auto-generated thumbnail fallback already showing.
+        // Read the README straight off the raw CDN rather than the GitHub
+        // API — the API's /readme endpoint shares the same 60 req/hour
+        // unauthenticated rate limit as the repo listing call, so most of
+        // these fetches would silently 403 and fall back to the generic
+        // OpenGraph thumbnail once there are more than a handful of repos.
+        for (const name of ['README.md', 'readme.md', 'Readme.md', 'README.MD']) {
+          try {
+            const res = await fetch(`https://raw.githubusercontent.com/${repo.full_name}/${branch}/${name}`);
+            if (!res.ok) continue;
+            const text = await res.text();
+            const raw = extractReadmeImage(text);
+            if (!raw) return;
+            const url = resolveReadmeImageUrl(raw, repo);
+            setCardThumb(repo, url);
+            return;
+          } catch (err) {
+            // Try the next casing / keep the fallback thumbnail showing.
+          }
         }
       }));
     }
