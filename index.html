@@ -874,10 +874,16 @@
       return heroImageCache.get(repo.full_name) || thumbUrl(repo);
     }
 
+    const BADGE_HOST_RE = /(shields\.io|badge\.fury\.io|badgen\.net|img\.shields|github\.com\/[^/]+\/[^/]+\/(workflows|actions)\/|visitor-badge|forthebadge\.com)/i;
+
     function extractReadmeImage(markdown) {
-      const mdMatch = markdown.match(/!\[[^\]]*\]\(([^)\s]+)/);
-      const htmlMatch = markdown.match(/<img[^>]+src=["']([^"']+)["']/i);
-      return (mdMatch && mdMatch[1]) || (htmlMatch && htmlMatch[1]) || null;
+      const imgRe = /!\[[^\]]*\]\(([^)\s]+)|<img[^>]+src=["']([^"']+)["']/gi;
+      let match;
+      while ((match = imgRe.exec(markdown)) !== null) {
+        const src = match[1] || match[2];
+        if (src && !BADGE_HOST_RE.test(src)) return src;
+      }
+      return null;
     }
 
     function resolveReadmeImageUrl(raw, repo) {
@@ -887,8 +893,33 @@
       return `https://raw.githubusercontent.com/${repo.full_name}/${branch}/${cleanPath}`;
     }
 
+    function imageExists(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+      });
+    }
+
+    function setCardThumb(repo, url) {
+      heroImageCache.set(repo.full_name, url);
+      const img = document.querySelector(`.card-thumb[data-repo="${CSS.escape(repo.full_name)}"]`);
+      if (img) img.src = url;
+    }
+
     async function loadReadmeThumbnails(repos) {
       await Promise.allSettled(repos.map(async (repo) => {
+        const branch = repo.default_branch || 'main';
+        // Prefer a dedicated hero.png/jpg at the repo root over whatever
+        // image happens to appear first in the README (usually a badge).
+        for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
+          const heroUrl = `https://raw.githubusercontent.com/${repo.full_name}/${branch}/hero.${ext}`;
+          if (await imageExists(heroUrl)) {
+            setCardThumb(repo, heroUrl);
+            return;
+          }
+        }
         try {
           const res = await fetch(
             `https://api.github.com/repos/${repo.full_name}/readme`,
@@ -899,9 +930,7 @@
           const raw = extractReadmeImage(text);
           if (!raw) return;
           const url = resolveReadmeImageUrl(raw, repo);
-          heroImageCache.set(repo.full_name, url);
-          const img = document.querySelector(`.card-thumb[data-repo="${CSS.escape(repo.full_name)}"]`);
-          if (img) img.src = url;
+          setCardThumb(repo, url);
         } catch (err) {
           // Keep the auto-generated thumbnail fallback already showing.
         }
