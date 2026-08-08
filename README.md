@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/tbj-v2.png" width="120" height="120" alt="TheBooleanJulian avatar" style="border-radius:50%">
+
 # thebooleanjulian.github.io
 
 **Personal landing page and live project showcase for TheBooleanJulian.**
@@ -37,6 +39,8 @@ A GitHub Pages landing page for [@TheBooleanJulian](https://github.com/TheBoolea
 thebooleanjulian.github.io/
 |-- index.html
 |-- games.js
+|-- assets/
+|   `-- tbj-v2.png
 |-- LICENSE
 |-- NOTICE
 `-- COMMERCIAL-LICENSE.md
