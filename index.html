@@ -542,6 +542,13 @@
       border: 1px solid #8f8f8f; border-radius: 2px;
       background: #fff; color: var(--text);
     }
+    .xp-filterbar input[type="search"] {
+      font-family: Tahoma, sans-serif; font-size: .74rem;
+      padding: .15rem .3rem;
+      border: 1px solid #8f8f8f; border-radius: 2px;
+      background: #fff; color: var(--text);
+      width: 9rem;
+    }
 
     /* ── SOUND TOGGLE ── */
     .sound-toggle {
@@ -734,8 +741,10 @@
         </div>
       </div>
       <div class="xp-addressbar">
-        <span>&#128193;</span> Address: <b>C:\Users\Julian\Projects</b>
+        <span>&#128193;</span> Address: <b>C:\Users\TheBooleanJulian\Repositories</b>
         <div class="xp-filterbar">
+          <label for="repo-search" class="visually-hidden">Search repos</label>
+          <input type="search" id="repo-search" placeholder="Search projects...">
           <label for="sort-select" class="visually-hidden">Sort</label>
           <select id="sort-select">
             <option value="updated">Sort: Recently updated</option>
@@ -1036,6 +1045,9 @@
       },
     ];
 
+    // Display order for tabs (independent of the match-priority order above).
+    const TAB_ORDER = ['web', 'bots', 'tools', 'games', 'other'];
+
     function categorize(repo) {
       const text = `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`.toLowerCase();
       return CATEGORIES.find((c) => c.match(repo, text)) ?? CATEGORIES[CATEGORIES.length - 1];
@@ -1060,8 +1072,16 @@
       const tabsEl = document.getElementById('category-tabs');
       const sortBy = document.getElementById('sort-select').value;
       const lang   = document.getElementById('lang-select').value;
+      const query  = document.getElementById('repo-search').value.trim().toLowerCase();
 
       let list = lang ? allRepos.filter(r => r.language === lang) : allRepos.slice();
+      if (query) {
+        list = list.filter((r) =>
+          r.name.toLowerCase().includes(query) ||
+          (r.description ?? '').toLowerCase().includes(query) ||
+          (r.topics ?? []).some((t) => t.toLowerCase().includes(query))
+        );
+      }
 
       if (sortBy === 'stars') list.sort((a, b) => b.stargazers_count - a.stargazers_count);
       else if (sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
@@ -1077,7 +1097,9 @@
 
       const buckets = new Map(CATEGORIES.map((c) => [c.id, []]));
       list.forEach((repo) => buckets.get(categorize(repo).id).push(repo));
-      const activeCats = CATEGORIES.filter((c) => buckets.get(c.id).length);
+      const activeCats = TAB_ORDER
+        .map((id) => CATEGORIES.find((c) => c.id === id))
+        .filter((c) => buckets.get(c.id).length);
 
       if (!activeCategory || !buckets.get(activeCategory).length) {
         activeCategory = activeCats[0].id;
@@ -1212,6 +1234,7 @@
 
     document.getElementById('sort-select').addEventListener('change', applyFiltersAndRender);
     document.getElementById('lang-select').addEventListener('change', applyFiltersAndRender);
+    document.getElementById('repo-search').addEventListener('input', applyFiltersAndRender);
 
     function updateClock() {
       const clock = document.getElementById('clock');
