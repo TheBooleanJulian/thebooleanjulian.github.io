@@ -825,7 +825,6 @@
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
     const AVATAR_URL  = `https://github.com/${GITHUB_USER}.png`;
-    const SKIP_REPOS  = new Set(['thebooleanjulian.github.io', 'helloworld01', 'Julian97.github.io']);
 
     // GitHub language → CSS colour (github.com/ozh/github-colors)
     const LANG_COLORS = {
@@ -1169,7 +1168,7 @@
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
 
         const repos = (await res.json())
-          .filter(r => !r.fork && !r.archived && !SKIP_REPOS.has(r.name));
+          .filter(r => !r.fork && !r.archived);
 
         if (repos.length === 0) {
           grid.innerHTML = '<div class="state-msg">No public repos found.</div>';
