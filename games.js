@@ -9,22 +9,19 @@ function createGameWindow(id, icon, title, widthPx) {
     return card.querySelector('.game-body');
   }
   card = document.createElement('div');
-  card.className = 'card game-window';
+  card.className = 'card window game-window';
   card.id = id;
   card.style.setProperty('--game-w', (widthPx || 480) + 'px');
   card.innerHTML = `
-    <div class="xp-titlebar">
-      <div class="xp-titlebar-left">
-        <span class="xp-icon">${icon}</span>
-        <span class="xp-title-text">${title}</span>
-      </div>
-      <div class="xp-titlebar-btns">
-        <span class="xp-btn xp-btn-min">&minus;</span>
-        <span class="xp-btn xp-btn-max">&#9633;</span>
-        <span class="xp-btn xp-btn-close">&times;</span>
+    <div class="title-bar">
+      <div class="title-bar-text"><span class="xp-icon">${icon}</span> ${title}</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
       </div>
     </div>
-    <div class="xp-body game-body"></div>`;
+    <div class="window-body game-body"></div>`;
   document.body.appendChild(card);
   bringToFront(card);
   // Freeze the initial centered position in pixels so later content

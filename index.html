@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/xp.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -125,7 +126,7 @@
       align-items: center; gap: 2rem;
       padding: 1.5rem !important;
     }
-    .hero-window:hover { transform: none; box-shadow: 2px 3px 10px rgba(0,0,0,.5); }
+    .hero-window:hover { transform: none; filter: drop-shadow(2px 4px 12px rgba(0,0,0,.5)); }
     .hero-avatar {
       flex-shrink: 0;
       width: 110px; height: 110px;
@@ -243,56 +244,21 @@
       font-size: .78rem; color: var(--muted); font-style: italic;
       margin: -.25rem 0 .25rem;
     }
-    /* ── XP WINDOW CARD ── */
+    /* ── XP WINDOW CARD (chrome via XP.css, layout via .card) ── */
     .card {
       position: relative;
       display: flex; flex-direction: column;
       font-family: Tahoma, 'Segoe UI', Verdana, sans-serif;
-      background: #ece9d8;
-      border: 1px solid #0a3faa;
-      border-radius: 8px 8px 3px 3px;
       overflow: hidden;
-      box-shadow: 2px 3px 10px rgba(0,0,0,.5);
-      transition: transform .2s, box-shadow .2s;
+      transition: transform .2s;
     }
     .card:hover {
       transform: translateY(-2px);
-      box-shadow: 3px 7px 18px rgba(0,0,0,.6);
-    }
-    .xp-titlebar {
-      background: linear-gradient(180deg, #3d94f6 0%, #1a5fd6 8%, #1657d0 42%, #0f4fc4 88%, #0b3fa8 100%);
-      padding: .3rem .35rem .3rem .5rem;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: .5rem;
-    }
-    .xp-titlebar-left {
-      display: flex; align-items: center; gap: .35rem;
-      min-width: 0;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.45));
     }
     .xp-icon { font-size: .8rem; flex-shrink: 0; }
-    .xp-title-text {
-      color: #fff; font-size: .78rem; font-weight: 700;
-      text-shadow: 1px 1px 1px rgba(0,0,0,.5);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .xp-title-text a { color: inherit; text-decoration: none; }
-    .xp-title-text a::after { content: ''; position: absolute; inset: 0; }
-    .xp-titlebar-btns { display: flex; gap: 2px; flex-shrink: 0; position: relative; z-index: 2; }
-    .xp-btn {
-      width: 16px; height: 14px;
-      border-radius: 2px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .55rem; font-weight: 700; line-height: 1;
-      color: #0b3fa8;
-      background: linear-gradient(180deg,#fefefe,#cfe0f7 55%,#a9c6ee);
-      border: 1px solid rgba(255,255,255,.85);
-      box-shadow: 0 1px 1px rgba(0,0,0,.3);
-    }
-    .xp-btn-close {
-      color: #fff;
-      background: linear-gradient(180deg,#ff8a80,#e23c2b 55%,#c22014);
-    }
-    .xp-body {
+    .window-body {
+      margin: 0 !important;
       background: #fff;
       border-top: 1px solid #a8c4e0;
       padding: .9rem 1rem 1rem;
@@ -532,9 +498,7 @@
     }
     .card.wm-maximized .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
     .card.wm-closed { display: none !important; }
-    .xp-btn { cursor: pointer; }
-    .xp-btn:hover { filter: brightness(1.08); }
-    .xp-btn:active { filter: brightness(.92); }
+    .title-bar-controls button { cursor: pointer; }
     .taskbar-item-window { position: relative; }
     .taskbar-item-window.active { background: rgba(255,255,255,.3); border-color: rgba(255,255,255,.4); }
 
@@ -573,7 +537,7 @@
       padding: 1rem;
     }
     .msgbox { width: min(320px, 100%); box-shadow: 3px 4px 20px rgba(0,0,0,.6); }
-    .msgbox .xp-body { gap: .9rem; }
+    .msgbox .window-body { gap: .9rem; }
     .msgbox p { font-size: .82rem; color: #333; }
 
     .visually-hidden {
@@ -690,19 +654,16 @@
 
   <!-- HERO -->
   <div class="hero-wrap">
-    <div class="card hero-window" id="window-hero">
-      <div class="xp-titlebar">
-        <div class="xp-titlebar-left">
-          <span class="xp-icon">&#128421;&#65039;</span>
-          <span class="xp-title-text">AboutMe.exe</span>
-        </div>
-        <div class="xp-titlebar-btns">
-          <span class="xp-btn xp-btn-min">&minus;</span>
-          <span class="xp-btn xp-btn-max">&#9633;</span>
-          <span class="xp-btn xp-btn-close">&times;</span>
+    <div class="card window hero-window" id="window-hero">
+      <div class="title-bar">
+        <div class="title-bar-text"><span class="xp-icon">&#128421;&#65039;</span> AboutMe.exe</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize"></button>
+          <button aria-label="Maximize"></button>
+          <button aria-label="Close"></button>
         </div>
       </div>
-      <div class="xp-body hero-body">
+      <div class="window-body hero-body">
         <img
           class="hero-avatar"
           src="assets/tbj-v2.png"
@@ -733,16 +694,13 @@
 
   <!-- PROJECTS (dynamically populated) -->
   <section id="projects">
-    <div class="card" id="window-projects">
-      <div class="xp-titlebar">
-        <div class="xp-titlebar-left">
-          <span class="xp-icon">&#128193;</span>
-          <span class="xp-title-text">My Projects</span>
-        </div>
-        <div class="xp-titlebar-btns">
-          <span class="xp-btn xp-btn-min">&minus;</span>
-          <span class="xp-btn xp-btn-max">&#9633;</span>
-          <span class="xp-btn xp-btn-close">&times;</span>
+    <div class="card window" id="window-projects">
+      <div class="title-bar">
+        <div class="title-bar-text"><span class="xp-icon">&#128193;</span> My Projects</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize"></button>
+          <button aria-label="Maximize"></button>
+          <button aria-label="Close"></button>
         </div>
       </div>
       <div class="xp-addressbar">
@@ -762,7 +720,7 @@
           </select>
         </div>
       </div>
-      <div class="xp-body">
+      <div class="window-body">
         <div class="section-header">
           <h2 class="section-title">Projects</h2>
           <div class="section-line"></div>
@@ -987,19 +945,16 @@
         .join('');
 
       return `
-        <div class="card">
-          <div class="xp-titlebar">
-            <div class="xp-titlebar-left">
-              <span class="xp-icon">${langIcon(repo.language)}</span>
-              <span class="xp-title-text"><a href="${repo.html_url}" target="_blank" rel="noopener">${escHtml(repo.name)}</a></span>
-            </div>
-            <div class="xp-titlebar-btns">
-              <span class="xp-btn xp-btn-min">&minus;</span>
-              <span class="xp-btn xp-btn-max">&#9633;</span>
-              <span class="xp-btn xp-btn-close">&times;</span>
+        <div class="card window">
+          <div class="title-bar">
+            <div class="title-bar-text"><span class="xp-icon">${langIcon(repo.language)}</span> <a href="${repo.html_url}" target="_blank" rel="noopener">${escHtml(repo.name)}</a></div>
+            <div class="title-bar-controls">
+              <button aria-label="Minimize"></button>
+              <button aria-label="Maximize"></button>
+              <button aria-label="Close"></button>
             </div>
           </div>
-          <div class="xp-body">
+          <div class="window-body">
             <img class="card-thumb" data-repo="${escHtml(repo.full_name)}" src="${cardThumbSrc(repo)}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.onerror=null;this.src='${AVATAR_URL}';">
             ${desc}
             <div class="card-footer">
@@ -1300,17 +1255,14 @@
       const overlay = document.createElement('div');
       overlay.className = 'msgbox-overlay';
       overlay.innerHTML = `
-        <div class="card msgbox">
-          <div class="xp-titlebar">
-            <div class="xp-titlebar-left">
-              <span class="xp-icon">${icon}</span>
-              <span class="xp-title-text">${escHtml(title)}</span>
-            </div>
-            <div class="xp-titlebar-btns">
-              <span class="xp-btn xp-btn-close" data-msgbox-close>&times;</span>
+        <div class="card window msgbox">
+          <div class="title-bar">
+            <div class="title-bar-text"><span class="xp-icon">${icon}</span> ${escHtml(title)}</div>
+            <div class="title-bar-controls">
+              <button aria-label="Close" data-msgbox-close></button>
             </div>
           </div>
-          <div class="xp-body">
+          <div class="window-body">
             <p>${bodyHtml}</p>
             <div style="text-align:right">
               <button class="btn btn-primary" data-msgbox-close>OK</button>
@@ -1345,7 +1297,7 @@
       if (document.querySelector(`.taskbar-item-window[data-wid="${wid}"]`)) return;
 
       const icon  = card.querySelector('.xp-icon')?.innerHTML ?? '&#128193;';
-      const label = card.querySelector('.xp-title-text')?.textContent.trim() ?? 'Window';
+      const label = card.querySelector('.title-bar-text')?.textContent.trim() ?? 'Window';
 
       const chip = document.createElement('button');
       chip.className = 'taskbar-item taskbar-item-window';
@@ -1379,15 +1331,16 @@
     }
 
     document.addEventListener('click', (e) => {
-      const btn = e.target.closest('.xp-btn');
+      const btn = e.target.closest('.title-bar-controls button');
       if (!btn || btn.hasAttribute('data-msgbox-close')) return;
       const card = btn.closest('.card');
       if (!card) return;
       e.preventDefault();
       e.stopPropagation();
-      if (btn.classList.contains('xp-btn-close')) hideToTaskbar(card);
-      else if (btn.classList.contains('xp-btn-min')) hideToTaskbar(card);
-      else if (btn.classList.contains('xp-btn-max')) toggleMaximize(card);
+      const action = btn.getAttribute('aria-label');
+      if (action === 'Close') hideToTaskbar(card);
+      else if (action === 'Minimize') hideToTaskbar(card);
+      else if (action === 'Maximize' || action === 'Restore') toggleMaximize(card);
     }, true);
 
     function openWindow(id) {
