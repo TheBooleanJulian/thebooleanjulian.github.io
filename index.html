@@ -41,14 +41,12 @@
       padding-bottom: 34px;
     }
 
-    /* ── DESKTOP BACKDROP (sky / hill / clouds) ── */
+    /* ── DESKTOP BACKDROP (Bliss-style wallpaper) ── */
     body::before {
       content: '';
       position: fixed; z-index: -2;
-      left: -15%; bottom: -22vh;
-      width: 130%; height: 46vh;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, #6dbf3f 0%, #3f9a1f 55%, #256b0f 100%);
+      inset: 0;
+      background: url("assets/bliss.svg") center / cover no-repeat;
       pointer-events: none;
     }
     .cloud {
@@ -93,7 +91,7 @@
     }
     .start-btn:hover { filter: brightness(1.1); }
     .start-btn:active { filter: brightness(.9); }
-    .start-icon { font-size: 1rem; }
+    .start-icon { display: inline-flex; flex-shrink: 0; filter: drop-shadow(1px 1px 1px rgba(0,0,0,.35)); }
     .taskbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,.25); flex-shrink: 0; }
     .taskbar-items { display: flex; gap: .3rem; flex: 1; min-width: 0; }
     .taskbar-item {
@@ -209,36 +207,17 @@
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
     }
-    /* ── CATEGORY TABS ── */
-    .tab-bar {
-      display: flex; gap: .25rem; flex-wrap: wrap;
-      border-bottom: 2px solid #ddd;
-      margin-bottom: 1rem;
-    }
-    .category-tab {
-      display: flex; align-items: center; gap: .4rem;
-      font-family: Tahoma, sans-serif; font-size: .78rem;
-      padding: .45rem .8rem;
-      background: var(--silver-dark);
-      border: 1px solid #b8b3a0; border-bottom: 2px solid #ddd;
-      border-radius: 4px 4px 0 0;
-      cursor: pointer;
-      color: var(--muted);
-      margin-bottom: -2px;
-    }
-    .category-tab:hover { background: var(--silver); color: var(--text); }
-    .category-tab.active {
-      background: #fff;
-      color: var(--accent);
-      font-weight: 700;
-      border-color: var(--accent) var(--accent) #fff;
-    }
+    /* ── CATEGORY TABS (chrome via XP.css menu[role=tablist]) ── */
+    #category-tabs { margin-bottom: 0; }
+    .category-tab { cursor: pointer; white-space: nowrap; font-family: Tahoma, sans-serif; font-size: .78rem; }
     .category-tab-icon { font-size: .95rem; }
     .category-tab-count {
       font-size: .68rem;
       background: var(--accent-dim); color: var(--accent);
       padding: .05rem .4rem; border-radius: 8px;
+      margin-left: .3rem;
     }
+    #repo-panel { padding: .5rem .25rem .25rem; background: none; border: none; box-shadow: none; }
     .category-persona {
       grid-column: 1 / -1;
       font-size: .78rem; color: var(--muted); font-style: italic;
@@ -729,13 +708,15 @@
           <div class="section-line"></div>
           <span class="section-count" id="repo-count"></span>
         </div>
-        <div class="tab-bar" id="category-tabs"></div>
-        <div class="grid" id="repo-grid">
-          <div class="state-msg">
-            <div class="spinner"></div><br>
-            Loading repos&hellip;
+        <menu role="tablist" id="category-tabs" aria-label="Project categories"></menu>
+        <article role="tabpanel" id="repo-panel">
+          <div class="grid" id="repo-grid">
+            <div class="state-msg">
+              <div class="spinner"></div><br>
+              Loading repos&hellip;
+            </div>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   </section>
@@ -775,7 +756,14 @@
 
   <div class="taskbar">
     <button class="start-btn" id="start-btn" aria-expanded="false">
-      <span class="start-icon">&#8862;</span> start
+      <span class="start-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
+          <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
+          <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
+          <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
+        </svg>
+      </span> start
     </button>
     <div class="taskbar-sep"></div>
     <div class="taskbar-items" id="taskbar-items">
@@ -1067,8 +1055,10 @@
         activeCategory = activeCats[0].id;
       }
 
-      tabsEl.innerHTML = activeCats.map((cat) => `
-        <button class="category-tab ${cat.id === activeCategory ? 'active' : ''}" data-cat="${cat.id}">
+      tabsEl.innerHTML = activeCats.map((cat, i) => `
+        <button class="category-tab" role="tab" data-cat="${cat.id}"
+          aria-selected="${cat.id === activeCategory}"
+          aria-controls="repo-panel" id="tab-${i}">
           <span class="category-tab-icon">${cat.icon}</span>
           <span>${cat.label}</span>
           <span class="category-tab-count">${buckets.get(cat.id).length}</span>
