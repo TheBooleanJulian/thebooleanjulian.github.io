@@ -1634,17 +1634,22 @@ GAMES.push({ icon: '&#128377;&#65039;', title: 'Pinball', launch: launchPinball 
 
 /* ══════════════ NOTEPAD ══════════════ */
 function launchNotepad() {
-  const body = createGameWindow('app-notepad', '&#128221;', 'Notepad', 480);
+  const body = createGameWindow('app-notepad', '&#128221;', 'Notepad', 520);
   if (body.dataset.mounted) return;
   body.dataset.mounted = '1';
 
   body.innerHTML = `
-    <div class="game-toolbar">
-      <button class="btn" id="np-new">New</button>
-      <button class="btn" id="np-save">Save As .txt</button>
-      <span class="game-status" id="np-count" style="margin:0"></span>
+    <div class="app-menubar">
+      <span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>
     </div>
-    <textarea id="np-text" style="width:100%;min-height:280px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.5rem;border:1px solid #8f8f8f;border-radius:2px;"></textarea>
+    <textarea id="np-text" style="width:100%;min-height:300px;resize:none;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.5rem;border:1px solid #7f9db9;border-radius:0;"></textarea>
+    <div class="game-toolbar">
+      <button class="btn" id="np-new">&#128424; New</button>
+      <button class="btn" id="np-save">&#128190; Save As .txt</button>
+    </div>
+    <div class="status-bar">
+      <p class="status-bar-field" id="np-count" style="flex:1"></p>
+    </div>
   `;
   const textarea = body.querySelector('#np-text');
   const countEl = body.querySelector('#np-count');
@@ -1655,13 +1660,16 @@ function launchNotepad() {
   function updateCount() {
     const trimmed = textarea.value.trim();
     const words = trimmed ? trimmed.split(/\s+/).length : 0;
-    countEl.textContent = `${textarea.value.length} chars · ${words} words`;
+    const lines = trimmed ? trimmed.split(/\n/).length : 0;
+    countEl.textContent = `Ln ${lines}, Col 1    ·    ${words} words    ·    ${textarea.value.length} chars`;
   }
 
   textarea.addEventListener('input', () => {
     localStorage.setItem(STORAGE_KEY, textarea.value);
     updateCount();
   });
+  textarea.addEventListener('keyup', updateCount);
+  textarea.addEventListener('click', updateCount);
 
   body.querySelector('#np-new').addEventListener('click', () => {
     if (textarea.value && !confirm('Clear the current document?')) return;
@@ -1698,17 +1706,22 @@ function launchPaint() {
   ];
 
   body.innerHTML = `
-    <div class="game-toolbar" style="flex-wrap:wrap">
-      <div id="paint-swatches" style="display:flex;gap:2px;flex-wrap:wrap;width:172px"></div>
-      <label style="display:flex;align-items:center;gap:.3rem;font-size:.78rem">
-        Size <input type="range" id="paint-size" min="1" max="24" value="4">
-      </label>
-      <button class="btn" id="paint-pencil">Pencil</button>
-      <button class="btn" id="paint-eraser">Eraser</button>
-      <button class="btn" id="paint-clear">Clear</button>
-      <button class="btn" id="paint-save">Save As PNG</button>
+    <div class="app-menubar">
+      <span>File</span><span>Edit</span><span>View</span><span>Image</span><span>Colors</span><span>Help</span>
     </div>
-    <canvas id="paint-canvas" width="500" height="340" style="background:#fff;border:2px inset #888;display:block;margin:0 auto;cursor:crosshair;touch-action:none"></canvas>
+    <div class="game-toolbar" style="flex-wrap:wrap">
+      <div id="paint-swatches" style="display:flex;gap:2px;flex-wrap:wrap;max-width:220px"></div>
+      <label class="field-label">Size <input type="range" id="paint-size" min="1" max="24" value="4" style="width:90px"></label>
+      <button class="btn" id="paint-pencil">&#9998; Pencil</button>
+      <button class="btn" id="paint-eraser">&#129530; Eraser</button>
+      <button class="btn" id="paint-clear">&#10038; Clear</button>
+      <button class="btn" id="paint-save">&#128190; Save</button>
+    </div>
+    <canvas id="paint-canvas" width="500" height="340" style="background:#fff;border:1px solid #7f9db9;display:block;margin:0 auto;cursor:crosshair;touch-action:none"></canvas>
+    <div class="status-bar">
+      <p class="status-bar-field" id="paint-coords" style="flex:1"></p>
+      <p class="status-bar-field" id="paint-tool"></p>
+    </div>
   `;
   const canvas = body.querySelector('#paint-canvas');
   const ctx = canvas.getContext('2d');
@@ -1721,6 +1734,8 @@ function launchPaint() {
   const sizeInput = body.querySelector('#paint-size');
   const eraserBtn = body.querySelector('#paint-eraser');
   const pencilBtn = body.querySelector('#paint-pencil');
+  const coordsEl = body.querySelector('#paint-coords');
+  const toolEl = body.querySelector('#paint-tool');
   let color = '#000000';
   let erasing = false;
 
@@ -1728,11 +1743,13 @@ function launchPaint() {
     erasing = v;
     eraserBtn.style.borderColor = v ? 'var(--accent)' : '';
     pencilBtn.style.borderColor = v ? '' : 'var(--accent)';
+    toolEl.textContent = v ? 'Eraser' : 'Pencil';
   }
+  toolEl.textContent = 'Pencil';
 
   COLORS.forEach((c) => {
     const sw = document.createElement('button');
-    sw.style.cssText = `width:20px;height:20px;background:${c};border:1px solid #888;cursor:pointer;padding:0;`;
+    sw.style.cssText = `width:20px;height:20px;background:${c};border:1px solid #888;cursor:pointer;padding:0;border-radius:0;`;
     sw.addEventListener('click', () => { color = c; setErasing(false); });
     swatchesEl.appendChild(sw);
   });
@@ -1773,6 +1790,7 @@ function launchPaint() {
     ctx.beginPath();
     ctx.arc(p.x, p.y, sizeInput.value / 2, 0, Math.PI * 2);
     ctx.fill();
+    updateCoords(e);
     e.preventDefault();
   }
 
@@ -1786,7 +1804,13 @@ function launchPaint() {
     ctx.lineTo(p.x, p.y);
     ctx.stroke();
     lastX = p.x; lastY = p.y;
+    updateCoords(e);
     e.preventDefault();
+  }
+
+  function updateCoords(e) {
+    const p = getPos(e);
+    coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)} px`;
   }
 
   function endDraw() { drawing = false; }
@@ -1797,27 +1821,36 @@ function launchPaint() {
   canvas.addEventListener('touchstart', startDraw);
   canvas.addEventListener('touchmove', draw);
   window.addEventListener('touchend', endDraw);
+  canvas.addEventListener('mousemove', updateCoords);
 }
 
 /* ══════════════ MEDIA PLAYER VISUALIZER ══════════════ */
 function launchMediaPlayer() {
-  const body = createGameWindow('app-mediaplayer', '&#127925;', 'Windows Media Player', 420);
+  const body = createGameWindow('app-mediaplayer', '&#127925;', 'Windows Media Player', 460);
   if (body.dataset.mounted) return;
   body.dataset.mounted = '1';
 
   body.innerHTML = `
+    <div class="app-menubar">
+      <span>File</span><span>View</span><span>Play</span><span>Tools</span><span>Help</span>
+    </div>
     <div class="game-toolbar">
-      <input type="file" id="wmp-file" accept="audio/*" style="font-size:.75rem;max-width:180px">
+      <input type="file" id="wmp-file" accept="audio/*" style="max-width:200px">
       <button class="btn" id="wmp-play" disabled>&#9654; Play</button>
     </div>
-    <canvas id="wmp-canvas" width="380" height="220" style="background:#000;border-radius:4px;display:block;margin:0 auto"></canvas>
+    <canvas id="wmp-canvas" width="400" height="220" style="background:#000;border:1px solid #666;display:block;margin:0 auto"></canvas>
     <p class="game-status" id="wmp-status">Load a track to visualize it.</p>
+    <div class="status-bar">
+      <p class="status-bar-field" id="wmp-title" style="flex:1"></p>
+      <p class="status-bar-field">Visualization: Bars</p>
+    </div>
   `;
   const fileInput = body.querySelector('#wmp-file');
   const playBtn = body.querySelector('#wmp-play');
   const canvas = body.querySelector('#wmp-canvas');
   const ctx = canvas.getContext('2d');
   const statusEl = body.querySelector('#wmp-status');
+  const titleEl = body.querySelector('#wmp-title');
   const card = document.getElementById('app-mediaplayer');
 
   const audio = new Audio();
@@ -1841,6 +1874,7 @@ function launchMediaPlayer() {
     audio.src = URL.createObjectURL(file);
     playBtn.disabled = false;
     statusEl.textContent = `Loaded: ${file.name}`;
+    titleEl.textContent = file.name;
   });
 
   playBtn.addEventListener('click', () => {

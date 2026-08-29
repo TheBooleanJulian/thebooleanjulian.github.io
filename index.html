@@ -351,7 +351,7 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
-    /* ── BOOT / SHUTDOWN SCREEN ── */
+    /* ── BOOT / LOGIN / SHUTDOWN / RESTART SCREENS ── */
     .boot-screen {
       position: fixed; inset: 0; z-index: 9999;
       background: #000;
@@ -360,6 +360,11 @@
       color: #fff;
       transition: opacity .6s ease;
     }
+    .boot-screen.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Boot (BIOS-style POST) ── */
+    .boot-stage { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1.3rem; text-align: center; }
+    .boot-screen.phase-boot .boot-stage-boot { display: flex; }
     .boot-logo {
       font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.6rem;
       letter-spacing: .02em;
@@ -379,10 +384,111 @@
     }
     @keyframes boot-fill { from { background-position: 0% 0; } to { background-position: -200% 0; } }
     .boot-caption { font-size: .75rem; color: #999; }
-    .boot-screen.hidden { opacity: 0; pointer-events: none; }
-    .boot-actions { display: none; gap: .6rem; margin-top: .5rem; }
-    .boot-screen.ready .boot-actions { display: flex; }
-    .boot-screen.shutdown .boot-bar { display: none; }
+
+    /* ── Login (XP Welcome screen) ── */
+    .boot-screen.phase-login { background: #1a3a7a; }
+    .boot-screen.phase-login .boot-stage-login { display: flex; }
+    .login-splash {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(10,41,108,.85) 0%, rgba(10,41,108,.55) 60%, rgba(4,20,60,.9) 100%),
+        url("assets/bliss.svg") center / cover no-repeat;
+    }
+    .login-topbar {
+      width: 100%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.1rem 2.2rem;
+      background: linear-gradient(180deg, rgba(8,38,110,.85), rgba(8,38,110,.4));
+      border-bottom: 1px solid rgba(140,180,255,.35);
+    }
+    .login-topbar-brand {
+      display: flex; align-items: center; gap: .6rem;
+      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.05rem;
+      color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,.6);
+    }
+    .login-topbar-brand svg { filter: drop-shadow(1px 1px 1px rgba(0,0,0,.5)); }
+    .login-topbar-name {
+      font-family: Tahoma, sans-serif; font-size: .92rem;
+      color: #dde9ff; font-style: italic; text-shadow: 1px 1px 2px rgba(0,0,0,.6);
+    }
+    .login-panel { position: relative; z-index: 1; width: min(540px, 92vw); }
+    .login-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      border: 1px solid rgba(160,195,255,.45);
+      border-radius: 6px;
+      box-shadow: 0 6px 26px rgba(0,0,0,.5);
+      padding: 1.4rem 1.5rem 1.2rem;
+    }
+    .login-welcome {
+      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.2rem;
+      color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,.55);
+      margin-bottom: 1.2rem;
+    }
+    .login-user {
+      display: flex; align-items: center; gap: 1rem;
+      width: 100%;
+      padding: .7rem .9rem;
+      border: 1px solid rgba(160,195,255,.35);
+      border-radius: 4px;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      color: #fff; text-align: left; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .login-user:hover, .login-user:focus-visible {
+      background: linear-gradient(180deg, rgba(120,180,255,.4), rgba(80,140,230,.25));
+      border-color: #ffd97a;
+      outline: none;
+    }
+    .login-avatar {
+      width: 74px; height: 74px; border-radius: 6px;
+      object-fit: cover; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,.7);
+      box-shadow: 0 2px 8px rgba(0,0,0,.5);
+    }
+    .login-user-info { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+    .login-user-name { font-family: Tahoma, sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .login-user-sub { font-family: Tahoma, sans-serif; font-size: .8rem; color: #cddffb; }
+    .login-hint { margin-top: 1.1rem; font-family: Tahoma, sans-serif; font-size: .8rem; color: #cfe0ff; }
+    .login-footer {
+      display: flex; justify-content: flex-end; margin-top: 1.3rem;
+    }
+
+    /* ── Shutdown / Restart ── */
+    .boot-screen.shutdown .boot-stage-shutdown { display: flex; }
+    .shutdown-box {
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      animation: shutdown-pulse 2.4s ease-in-out infinite;
+      color: #fff;
+    }
+    .shutdown-orb {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #6fb1e8, #0a3faa 70%);
+      box-shadow: 0 0 18px rgba(90,160,255,.7), inset 0 0 10px rgba(255,255,255,.5);
+      position: relative;
+    }
+    .shutdown-orb::after {
+      content: ''; position: absolute; inset: 22px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.9);
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shutdown-pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+    .shutdown-hint { font-family: Tahoma, sans-serif; font-size: 1.05rem; font-weight: 700; text-shadow: 1px 1px 2px #000; }
+    .shutdown-caption { font-family: Tahoma, sans-serif; font-size: .78rem; color: #a8b0c8; }
+    /* Safe-to-turn-off state */
+    .boot-screen.safe .boot-stage-shutdown { display: flex; }
+    .boot-screen.safe { background: #000; }
+    .boot-screen.safe .boot-stage-shutdown { animation: none; }
+    .boot-screen.safe .shutdown-box { animation: none; gap: .4rem; color: #ffb000; }
+    .boot-screen.safe .shutdown-orb { display: none; }
+    .boot-screen.safe .shutdown-hint {
+      color: #ffb000; font-family: Tahoma, sans-serif;
+      font-weight: 700; font-size: 1.6rem; text-align: center;
+      text-shadow: 1px 1px 2px #000; line-height: 1.4; white-space: pre-line;
+    }
+    .boot-screen.safe .shutdown-caption { color: #d6b87a; }
 
     /* ── DESKTOP ICONS ── */
     .desktop-icons {
@@ -536,7 +642,27 @@
     .game-window .game-body {
       overflow: auto;
       max-height: 82vh;
-      align-items: center;
+      align-items: stretch;
+    }
+    /* XP app menu bar and status bar for the miniprograms */
+    .app-menubar {
+      display: flex; align-items: center; gap: .1rem;
+      padding: 2px 3px;
+      background: #ece9d8;
+      border-bottom: 1px solid #d4d0c8;
+      flex-wrap: wrap;
+      font-size: .78rem;
+    }
+    .app-menubar > span {
+      padding: 2px 7px; cursor: pointer; color: #222; border-radius: 2px;
+    }
+    .app-menubar > span:hover { background: #3d94f6; color: #fff; }
+    .game-window .status-bar { margin-top: auto; }
+    /* Canvas sizing so Paint / Media Player fit their windows */
+    .game-window canvas { max-width: 100%; height: auto; }
+    .game-toolbar {
+      display: flex; align-items: center; flex-wrap: wrap; gap: .5rem;
+      font-size: .82rem;
     }
     .game-launcher-grid {
       display: grid;
@@ -553,10 +679,6 @@
     .game-launcher-icon:hover { background: var(--accent-dim); }
     .game-launcher-icon .glyph { font-size: 2rem; }
     .game-launcher-icon .label { font-size: .75rem; color: var(--text); text-align: center; }
-    .game-toolbar {
-      display: flex; align-items: center; flex-wrap: wrap; gap: .5rem;
-      font-size: .82rem;
-    }
     .game-status { font-size: .82rem; color: var(--muted); min-height: 1.2em; }
     .game-board { display: grid; gap: 2px; margin: 0 auto; }
     .game-cell {
@@ -566,6 +688,13 @@
       background: #ece9d8; border: 1px solid #b8b3a0;
     }
     .game-cell:hover { background: #dce8fb; }
+    /* Field styling for toolbar inputs/selects */
+    .game-toolbar input[type="file"] { font-family: Tahoma, sans-serif; font-size: .75rem; }
+    .game-toolbar textarea { font-family: 'JetBrains Mono', monospace; }
+    .field-label {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-family: Tahoma, sans-serif; font-size: .78rem;
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .cloud-1, .cloud-2, .hero-avatar, .tray-colon, .boot-bar-fill {
@@ -586,13 +715,54 @@
 </head>
 <body>
 
-  <div class="boot-screen" id="boot-screen">
-    <div class="boot-logo">The <span>Boolean</span> Julian</div>
-    <div class="boot-bar"><div class="boot-bar-fill"></div></div>
-    <div class="boot-caption" id="boot-caption">Starting up&hellip;</div>
-    <div class="boot-actions">
-      <button class="btn btn-primary" id="boot-signout-btn">&#128100; Sign In</button>
-      <button class="btn" id="boot-restart-btn">&#8635; Restart</button>
+  <div class="boot-screen phase-boot" id="boot-screen">
+    <!-- POST/Boot stage -->
+    <div class="boot-stage boot-stage-boot">
+      <div class="boot-logo">The <span>Boolean</span> Julian</div>
+      <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+      <div class="boot-caption" id="boot-caption">Starting up&hellip;</div>
+    </div>
+
+    <!-- Login / Welcome stage -->
+    <div class="boot-stage boot-stage-login">
+      <div class="login-splash"></div>
+      <div class="login-topbar">
+        <span class="login-topbar-brand">
+          <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
+            <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
+            <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
+            <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
+          </svg>
+          The Boolean Julian
+        </span>
+        <span class="login-topbar-name">To begin, click your user name</span>
+      </div>
+      <div class="login-panel">
+        <div class="login-card">
+          <div class="login-welcome">Welcome</div>
+          <button class="login-user" id="login-user">
+            <img class="login-avatar" src="assets/tbj-v2.png" alt="">
+            <span class="login-user-info">
+              <span class="login-user-name">TheBooleanJulian</span>
+              <span class="login-user-sub">Administrator</span>
+            </span>
+          </button>
+          <p class="login-hint">We built this OS for you. Click your account to sign in.</p>
+          <div class="login-footer">
+            <button class="btn" data-action="shutdown">&#9210; Turn Off Computer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shutdown / Restart stage -->
+    <div class="boot-stage boot-stage-shutdown">
+      <div class="shutdown-box" id="shutdown-box">
+        <div class="shutdown-orb"></div>
+        <div class="shutdown-hint" id="shutdown-hint">Windows is shutting down&hellip;</div>
+        <div class="shutdown-caption" id="shutdown-caption">Please wait while your session is ending.</div>
+      </div>
     </div>
   </div>
 
@@ -750,6 +920,7 @@
     </div>
     <div class="start-menu-footer">
       <button data-action="log-off">&#128100; Log Off</button>
+      <button data-action="restart">&#8635; Restart</button>
       <button data-action="shutdown">&#9210; Turn Off Computer</button>
     </div>
   </div>
@@ -1375,6 +1546,7 @@
       else if (action === 'recyclebin') showRecycleBin();
       else if (action === 'log-off') doLogOff();
       else if (action === 'shutdown') doShutdown();
+      else if (action === 'restart') doRestart();
       startMenu.classList.remove('open');
       startBtn.setAttribute('aria-expanded', 'false');
     });
@@ -1406,24 +1578,52 @@
     attachActivate(document.getElementById('icon-mediaplayer'), () => launchMediaPlayer());
     attachActivate(document.getElementById('icon-recyclebin'), showRecycleBin);
 
-    /* ══════════════ BOOT / SHUTDOWN SCREEN ══════════════ */
+    /* ══════════════ BOOT / LOGIN / SHUTDOWN / RESTART ══════════════ */
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const bootScreen   = document.getElementById('boot-screen');
-    const bootCaption  = document.getElementById('boot-caption');
+    const bootScreen    = document.getElementById('boot-screen');
+    const bootCaption   = document.getElementById('boot-caption');
+    const shutdownHint  = document.getElementById('shutdown-hint');
+    const shutdownCap   = document.getElementById('shutdown-caption');
+    const loginUser     = document.getElementById('login-user');
+
+    // Initial POST / boot phase, then reveal the login (Welcome) screen.
+    function resetBootClasses() {
+      bootScreen.classList.remove('hidden', 'phase-boot', 'phase-login', 'shutdown', 'safe');
+    }
+    function showPhase(name) {
+      bootScreen.className = 'boot-screen phase-' + name;
+    }
 
     window.addEventListener('load', () => {
-      setTimeout(() => bootScreen.classList.add('hidden'), reducedMotion ? 0 : 1200);
+      setTimeout(() => showPhase('login'), reducedMotion ? 0 : 1400);
     });
 
+    function doLogin() {
+      playSound('startup');
+      bootScreen.classList.add('hidden');
+    }
+
     function doShutdown() {
-      bootScreen.classList.remove('hidden');
-      bootScreen.classList.add('shutdown');
-      bootCaption.textContent = 'Shutting down…';
       playSound('shutdown');
+      resetBootClasses();
+      bootScreen.classList.add('shutdown');
+      shutdownHint.textContent = 'Windows is shutting down…';
+      shutdownCap.textContent = 'Please wait while your session is ending.';
       setTimeout(() => {
-        bootCaption.textContent = "It's now safe to close this tab.";
-        bootScreen.classList.add('ready');
+        bootScreen.classList.remove('shutdown');
+        bootScreen.classList.add('safe');
+        shutdownHint.textContent = 'It is now safe to turn off\n your computer.';
+        shutdownCap.textContent = 'You may close this tab.';
       }, reducedMotion ? 0 : 1400);
+    }
+
+    function doRestart() {
+      playSound('shutdown');
+      resetBootClasses();
+      bootScreen.classList.add('shutdown');
+      shutdownHint.textContent = 'Windows is restarting…';
+      shutdownCap.textContent = 'Please wait while your computer restarts.';
+      setTimeout(() => location.reload(), reducedMotion ? 0 : 1500);
     }
 
     function resetWindowStates() {
@@ -1436,24 +1636,15 @@
     }
 
     function doLogOff() {
-      bootScreen.classList.remove('hidden', 'shutdown', 'ready');
-      bootCaption.textContent = 'Logging off…';
       playSound('shutdown');
-      setTimeout(() => {
-        resetWindowStates();
-        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
-        bootCaption.textContent = 'Welcome back';
-      }, reducedMotion ? 0 : 1100);
-      setTimeout(() => bootScreen.classList.add('hidden'), reducedMotion ? 0 : 1900);
+      resetBootClasses();
+      resetWindowStates();
+      window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+      setTimeout(() => showPhase('login'), reducedMotion ? 0 : 900);
     }
 
-    function doSignIn() {
-      bootScreen.classList.remove('shutdown', 'ready');
-      bootScreen.classList.add('hidden');
-    }
-
-    document.getElementById('boot-restart-btn').addEventListener('click', () => location.reload());
-    document.getElementById('boot-signout-btn').addEventListener('click', doSignIn);
+    loginUser.addEventListener('click', doLogin);
+    document.querySelector('.login-footer [data-action="shutdown"]').addEventListener('click', doShutdown);
   </script>
 
   <script src="games.js"></script>
