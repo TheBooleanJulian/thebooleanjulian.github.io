@@ -386,103 +386,114 @@
     .boot-caption { font-size: .75rem; color: #999; }
 
     /* ── Login (XP Welcome screen) ── */
-    .boot-screen.phase-login { background: #1a3a7a; }
+    .boot-screen.phase-login { background: #3a63c8; }
     .boot-screen.phase-login .boot-stage-login { display: flex; }
-    .login-splash {
-      position: absolute; inset: 0; z-index: 0;
-      background:
-        linear-gradient(180deg, rgba(10,41,108,.85) 0%, rgba(10,41,108,.55) 60%, rgba(4,20,60,.9) 100%),
-        url("assets/bliss.svg") center / cover no-repeat;
+    .boot-stage-login {
+      position: absolute; inset: 0;
+      flex-direction: column; align-items: stretch; justify-content: flex-start;
+      gap: 0; text-align: left;
     }
-    .login-topbar {
-      width: 100%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      padding: 1.1rem 2.2rem;
-      background: linear-gradient(180deg, rgba(8,38,110,.85), rgba(8,38,110,.4));
-      border-bottom: 1px solid rgba(140,180,255,.35);
+    .xp-login-top {
+      flex-shrink: 0; height: 64px;
+      background: linear-gradient(180deg,#0d3aad,#082a86);
+      border-bottom: 1px solid #4d76d9;
     }
-    .login-topbar-brand {
-      display: flex; align-items: center; gap: .6rem;
-      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.05rem;
-      color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,.6);
+    .xp-login-body {
+      flex: 1; display: flex; position: relative;
+      background: radial-gradient(circle at 16% 14%, #c3d5f8, #4066c9 55%, #2748a0 100%);
     }
-    .login-topbar-brand svg { filter: drop-shadow(1px 1px 1px rgba(0,0,0,.5)); }
-    .login-topbar-name {
-      font-family: Tahoma, sans-serif; font-size: .92rem;
-      color: #dde9ff; font-style: italic; text-shadow: 1px 1px 2px rgba(0,0,0,.6);
+    .xp-login-left {
+      flex: 1.2; display: flex; flex-direction: column; justify-content: center;
+      gap: 1.6rem; padding: 0 clamp(1.2rem, 5vw, 4rem);
     }
-    .login-panel { position: relative; z-index: 1; width: min(540px, 92vw); }
-    .login-card {
-      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-      border: 1px solid rgba(160,195,255,.45);
-      border-radius: 6px;
-      box-shadow: 0 6px 26px rgba(0,0,0,.5);
-      padding: 1.4rem 1.5rem 1.2rem;
+    .xp-login-logo { display: flex; align-items: center; gap: .8rem; }
+    .xp-login-logo-text { font-family: Tahoma, sans-serif; color: #fff; line-height: 1.05; }
+    .xp-login-logo-text small { display: block; font-size: .7rem; font-weight: 400; color: #dde6fb; }
+    .xp-login-logo-text b { font-size: clamp(1.4rem, 4vw, 2.1rem); font-weight: 700; }
+    .xp-login-logo-text i {
+      font-size: 1.05rem; font-style: italic; color: #ff9d2e; margin-left: .25rem;
+      text-shadow: 1px 1px 1px rgba(0,0,0,.3);
     }
-    .login-welcome {
-      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.2rem;
-      color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,.55);
-      margin-bottom: 1.2rem;
+    .xp-login-hint {
+      font-family: Tahoma, sans-serif; font-size: 1.05rem; color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,.35); max-width: 320px;
     }
+    .xp-login-divider { width: 1px; margin: 2.6rem 0; background: rgba(255,255,255,.4); flex-shrink: 0; }
+    .xp-login-right { flex: 1; display: flex; align-items: center; padding: 0 clamp(1.2rem, 4vw, 3rem); }
     .login-user {
       display: flex; align-items: center; gap: 1rem;
-      width: 100%;
-      padding: .7rem .9rem;
-      border: 1px solid rgba(160,195,255,.35);
-      border-radius: 4px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      width: 100%; max-width: 360px;
+      padding: .8rem 1rem;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,.05));
       color: #fff; text-align: left; cursor: pointer;
       transition: background .15s, border-color .15s;
     }
     .login-user:hover, .login-user:focus-visible {
-      background: linear-gradient(180deg, rgba(120,180,255,.4), rgba(80,140,230,.25));
+      background: linear-gradient(90deg, rgba(255,255,255,.4), rgba(255,255,255,.12));
       border-color: #ffd97a;
       outline: none;
     }
     .login-avatar {
-      width: 74px; height: 74px; border-radius: 6px;
+      width: 58px; height: 58px; border-radius: 4px;
       object-fit: cover; flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,.7);
-      box-shadow: 0 2px 8px rgba(0,0,0,.5);
+      border: 1px solid rgba(0,0,0,.4);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.75);
     }
     .login-user-info { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
-    .login-user-name { font-family: Tahoma, sans-serif; font-size: 1.1rem; font-weight: 700; }
-    .login-user-sub { font-family: Tahoma, sans-serif; font-size: .8rem; color: #cddffb; }
-    .login-hint { margin-top: 1.1rem; font-family: Tahoma, sans-serif; font-size: .8rem; color: #cfe0ff; }
+    .login-user-name { font-family: Tahoma, sans-serif; font-size: 1.15rem; font-weight: 700; }
+    .login-user-sub { font-family: Tahoma, sans-serif; font-size: .8rem; color: #dbe8ff; }
     .login-footer {
-      display: flex; justify-content: flex-end; margin-top: 1.3rem;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+      padding: .85rem clamp(1.2rem, 5vw, 3rem);
+      background: linear-gradient(180deg,#0d3aad,#082a86);
+      border-top: 2px solid transparent;
+      border-image: linear-gradient(90deg,#ffb144,#ffe9b8,#ffb144) 1;
+    }
+    .xp-login-shutdown {
+      display: flex; align-items: center; gap: .6rem;
+      background: none; border: none; cursor: pointer;
+      font-family: Tahoma, sans-serif; font-size: .92rem; font-weight: 700; color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,.4);
+    }
+    .xp-power-icon {
+      width: 1.7rem; height: 1.7rem; border-radius: 50%; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .85rem; color: #fff;
+      background: radial-gradient(circle at 35% 30%,#ff8a6b,#c02b0e);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.3);
+    }
+    .xp-login-note {
+      font-family: Tahoma, sans-serif; font-size: .74rem; color: #cfe0ff;
+      max-width: 320px; text-align: right;
     }
 
     /* ── Shutdown / Restart ── */
     .boot-screen.shutdown .boot-stage-shutdown { display: flex; }
-    .shutdown-box {
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
-      animation: shutdown-pulse 2.4s ease-in-out infinite;
+    .shutdown-panel {
+      width: min(460px, 88vw);
+      display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
+      padding: 2.6rem 2rem;
+      background: radial-gradient(circle at 30% 20%, #6f92dd, #2748a0 75%);
+      border-top: 5px solid #0a2c74;
+      border-bottom: 5px solid #0a2c74;
+      box-shadow: 0 10px 40px rgba(0,0,0,.6);
       color: #fff;
+      animation: shutdown-pulse 2.4s ease-in-out infinite;
     }
-    .shutdown-orb {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #6fb1e8, #0a3faa 70%);
-      box-shadow: 0 0 18px rgba(90,160,255,.7), inset 0 0 10px rgba(255,255,255,.5);
-      position: relative;
-    }
-    .shutdown-orb::after {
-      content: ''; position: absolute; inset: 22px;
-      border-radius: 50%;
-      border: 3px solid rgba(255,255,255,.9);
-      border-top-color: transparent;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes shutdown-pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
-    .shutdown-hint { font-family: Tahoma, sans-serif; font-size: 1.05rem; font-weight: 700; text-shadow: 1px 1px 2px #000; }
-    .shutdown-caption { font-family: Tahoma, sans-serif; font-size: .78rem; color: #a8b0c8; }
+    .shutdown-logo { flex-shrink: 0; filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); }
+    @keyframes shutdown-pulse { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
+    .shutdown-hint { font-family: Tahoma, sans-serif; font-size: 1.1rem; font-weight: 700; text-align: center; text-shadow: 1px 1px 2px #000; }
+    .shutdown-caption { font-family: Tahoma, sans-serif; font-size: .78rem; color: #d3ddf8; text-align: center; }
     /* Safe-to-turn-off state */
     .boot-screen.safe .boot-stage-shutdown { display: flex; }
     .boot-screen.safe { background: #000; }
-    .boot-screen.safe .boot-stage-shutdown { animation: none; }
-    .boot-screen.safe .shutdown-box { animation: none; gap: .4rem; color: #ffb000; }
-    .boot-screen.safe .shutdown-orb { display: none; }
+    .boot-screen.safe .shutdown-panel {
+      animation: none; background: none; border: none; box-shadow: none; gap: .6rem;
+    }
+    .boot-screen.safe .shutdown-logo { display: none; }
     .boot-screen.safe .shutdown-hint {
       color: #ffb000; font-family: Tahoma, sans-serif;
       font-weight: 700; font-size: 1.6rem; text-align: center;
@@ -520,45 +531,87 @@
     /* ── START MENU ── */
     .start-menu {
       position: fixed; left: 4px; bottom: 36px; z-index: 5000;
-      width: 300px;
+      width: 330px;
       display: flex; flex-direction: column;
-      border-radius: 8px 8px 4px 4px;
+      border-radius: 10px 10px 6px 6px;
       overflow: hidden;
-      box-shadow: 3px 3px 14px rgba(0,0,0,.5);
-      border: 1px solid #0a3faa;
+      box-shadow: 3px 3px 14px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.6) inset;
+      border: 2px solid #0a3faa;
       transform-origin: bottom left;
       transform: scale(.95); opacity: 0; pointer-events: none;
       transition: transform .12s ease, opacity .12s ease;
     }
     .start-menu.open { transform: scale(1); opacity: 1; pointer-events: auto; }
     .start-menu-header {
-      display: flex; align-items: center; gap: .6rem;
-      padding: .6rem .7rem;
-      background: linear-gradient(180deg,#3d94f6,#1657d0 60%,#0b3fa8);
+      position: relative;
+      display: flex; align-items: center; gap: .65rem;
+      padding: .55rem .65rem .7rem;
+      background: linear-gradient(180deg,#4d9bfb 0%,#2f7ff5 12%,#1657d0 55%,#0b3fa8 100%);
       color: #fff;
     }
-    .start-menu-header img {
-      width: 34px; height: 34px; border-radius: 4px;
-      border: 2px solid rgba(255,255,255,.8);
+    .start-menu-header::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+      background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0));
     }
-    .start-menu-header b { font-size: .85rem; }
+    .start-menu-header img {
+      width: 44px; height: 44px; border-radius: 4px;
+      border: 2px solid #fff;
+      box-shadow: 1px 1px 3px rgba(0,0,0,.5);
+    }
+    .start-menu-header b {
+      font-size: .95rem; font-weight: 700;
+      text-shadow: 1px 1px 1px rgba(0,0,0,.5);
+      letter-spacing: .2px;
+    }
     .start-menu-body { display: flex; background: #fff; }
-    .start-menu-left { flex: 1.4; padding: .4rem 0; }
+    .start-menu-left { flex: 1.35; padding: .5rem 0 .35rem; }
     .start-menu-right {
-      flex: 1; padding: .4rem 0;
-      background: #d8e4f8;
+      flex: 1; padding: .5rem 0 .35rem;
+      background: linear-gradient(90deg,#dbe7fa,#d3e1f8);
       border-left: 1px solid #b8c9e8;
     }
     .start-menu-item {
-      display: flex; align-items: center; gap: .55rem;
+      display: flex; align-items: center; gap: .6rem;
       width: 100%;
-      padding: .4rem .7rem;
-      background: none; border: none; text-decoration: none;
+      padding: .32rem .7rem;
+      background: none; border: 1px solid transparent; text-decoration: none;
       font-family: Tahoma, sans-serif; font-size: .78rem; color: var(--text);
       cursor: pointer; text-align: left;
     }
-    .start-menu-item:hover { background: var(--accent); color: #fff; }
-    .start-menu-item span.smi-icon { font-size: 1rem; width: 1.2rem; text-align: center; }
+    .start-menu-item:hover {
+      background: linear-gradient(180deg,#3d94f6,#1657d0);
+      border-color: #0b3fa8;
+      color: #fff;
+    }
+    .start-menu-item span.smi-icon { font-size: 1.05rem; width: 1.4rem; text-align: center; flex-shrink: 0; }
+    .start-menu-item-pinned { padding: .4rem .7rem; }
+    .start-menu-item-pinned span.smi-icon { font-size: 1.5rem; width: 1.7rem; }
+    .start-menu-item-pinned .smi-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .start-menu-item-pinned .smi-title { font-weight: 700; }
+    .start-menu-item-pinned .smi-sub { font-size: .68rem; color: var(--muted); }
+    .start-menu-item-pinned:hover .smi-sub { color: #dce8ff; }
+    .start-menu-divider {
+      height: 1px; margin: .35rem .6rem;
+      background: #d3cfc0;
+      box-shadow: 0 1px 0 #fff;
+    }
+    .start-menu-divider-right { background: #aebedb; box-shadow: 0 1px 0 #eef4ff; }
+    .start-menu-allprograms {
+      background: linear-gradient(180deg,#f2b34d,#e08e1a 55%,#c97709);
+      border-top: 1px solid #a86505;
+      padding: 0;
+    }
+    .start-menu-allprograms-btn {
+      display: flex; align-items: center; gap: .55rem;
+      width: 100%; padding: .35rem .7rem;
+      background: none; border: none;
+      font-family: Tahoma, sans-serif; font-weight: 700; font-size: .78rem;
+      color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,.35);
+      cursor: pointer; text-align: left;
+    }
+    .start-menu-allprograms-btn:hover { background: rgba(255,255,255,.18); }
+    .start-menu-allprograms-btn .smi-icon { font-size: 1.05rem; width: 1.4rem; text-align: center; }
+    .start-menu-allprograms-btn .ap-arrow { margin-left: auto; font-size: .65rem; letter-spacing: -2px; }
     .start-menu-footer {
       display: flex; justify-content: flex-end; gap: .5rem;
       padding: .5rem .7rem;
@@ -568,12 +621,21 @@
     .start-menu-footer button {
       display: flex; align-items: center; gap: .4rem;
       font-family: Tahoma, sans-serif; font-size: .75rem;
-      padding: .3rem .6rem;
+      padding: .3rem .6rem .3rem .3rem;
       background: linear-gradient(180deg,#fefefe,#ece9d8 60%,#d4d0c8);
       border: 1px solid #8f8f8f; border-radius: 3px;
       cursor: pointer;
     }
     .start-menu-footer button:hover { border-color: var(--accent); }
+    .footer-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1.15rem; height: 1.15rem; border-radius: 50%;
+      font-size: .7rem; flex-shrink: 0;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
+    .footer-icon-blue  { background: radial-gradient(circle at 35% 30%,#7fb4ff,#1657d0); }
+    .footer-icon-gray  { background: radial-gradient(circle at 35% 30%,#eee,#9a9a9a); }
+    .footer-icon-red   { background: radial-gradient(circle at 35% 30%,#ff8a6b,#c02b0e); }
 
     /* ── WINDOW MANAGER (minimize / maximize / close) ── */
     .card.wm-maximized {
@@ -725,22 +787,22 @@
 
     <!-- Login / Welcome stage -->
     <div class="boot-stage boot-stage-login">
-      <div class="login-splash"></div>
-      <div class="login-topbar">
-        <span class="login-topbar-brand">
-          <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
-            <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
-            <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
-            <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
-          </svg>
-          The Boolean Julian
-        </span>
-        <span class="login-topbar-name">To begin, click your user name</span>
-      </div>
-      <div class="login-panel">
-        <div class="login-card">
-          <div class="login-welcome">Welcome</div>
+      <div class="xp-login-top"></div>
+      <div class="xp-login-body">
+        <div class="xp-login-left">
+          <div class="xp-login-logo">
+            <svg width="52" height="52" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+              <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
+              <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
+              <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
+              <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
+            </svg>
+            <div class="xp-login-logo-text"><small>Microsoft&reg;</small><b>Windows</b><i>tbj</i></div>
+          </div>
+          <p class="xp-login-hint">To begin, click your user name</p>
+        </div>
+        <div class="xp-login-divider"></div>
+        <div class="xp-login-right">
           <button class="login-user" id="login-user">
             <img class="login-avatar" src="assets/tbj-v2.png" alt="">
             <span class="login-user-info">
@@ -748,18 +810,25 @@
               <span class="login-user-sub">Administrator</span>
             </span>
           </button>
-          <p class="login-hint">We built this OS for you. Click your account to sign in.</p>
-          <div class="login-footer">
-            <button class="btn" data-action="shutdown">&#9210; Turn Off Computer</button>
-          </div>
         </div>
+      </div>
+      <div class="login-footer">
+        <button class="xp-login-shutdown" data-action="shutdown">
+          <span class="xp-power-icon">&#9210;</span> Turn off computer
+        </button>
+        <p class="xp-login-note">After you sign in, you can explore my projects and games.</p>
       </div>
     </div>
 
     <!-- Shutdown / Restart stage -->
     <div class="boot-stage boot-stage-shutdown">
-      <div class="shutdown-box" id="shutdown-box">
-        <div class="shutdown-orb"></div>
+      <div class="shutdown-panel" id="shutdown-box">
+        <svg class="shutdown-logo" width="56" height="56" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
+          <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
+          <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
+          <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
+        </svg>
         <div class="shutdown-hint" id="shutdown-hint">Windows is shutting down&hellip;</div>
         <div class="shutdown-caption" id="shutdown-caption">Please wait while your session is ending.</div>
       </div>
@@ -903,8 +972,15 @@
     </div>
     <div class="start-menu-body">
       <div class="start-menu-left">
-        <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128421;&#65039;</span> About Me</button>
-        <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128193;</span> My Projects</button>
+        <button class="start-menu-item start-menu-item-pinned" data-action="open-hero">
+          <span class="smi-icon">&#128421;&#65039;</span>
+          <span class="smi-text"><span class="smi-title">About Me</span><span class="smi-sub">Who I am</span></span>
+        </button>
+        <button class="start-menu-item start-menu-item-pinned" data-action="open-projects">
+          <span class="smi-icon">&#128193;</span>
+          <span class="smi-text"><span class="smi-title">My Projects</span><span class="smi-sub">Browse my work</span></span>
+        </button>
+        <div class="start-menu-divider"></div>
         <button class="start-menu-item" data-action="open-games"><span class="smi-icon">&#127918;</span> Games</button>
         <a class="start-menu-item" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener"><span class="smi-icon">&#128025;</span> GitHub</a>
         <a class="start-menu-item" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener"><span class="smi-icon">&#128188;</span> LinkedIn</a>
@@ -912,16 +988,23 @@
       <div class="start-menu-right">
         <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128187;</span> My Computer</button>
         <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128194;</span> My Documents</button>
+        <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="open-notepad"><span class="smi-icon">&#128221;</span> Notepad</button>
         <button class="start-menu-item" data-action="open-paint"><span class="smi-icon">&#127912;</span> Paint</button>
         <button class="start-menu-item" data-action="open-mediaplayer"><span class="smi-icon">&#127925;</span> Media Player</button>
+        <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="recyclebin"><span class="smi-icon">&#128465;&#65039;</span> Recycle Bin</button>
       </div>
     </div>
+    <div class="start-menu-allprograms">
+      <button class="start-menu-allprograms-btn" data-action="open-projects">
+        <span class="smi-icon">&#128193;</span> All Programs <span class="ap-arrow">&#9658;&#9658;</span>
+      </button>
+    </div>
     <div class="start-menu-footer">
-      <button data-action="log-off">&#128100; Log Off</button>
-      <button data-action="restart">&#8635; Restart</button>
-      <button data-action="shutdown">&#9210; Turn Off Computer</button>
+      <button data-action="log-off"><span class="footer-icon footer-icon-blue">&#128100;</span> Log Off</button>
+      <button data-action="restart"><span class="footer-icon footer-icon-gray">&#8635;</span> Restart</button>
+      <button data-action="shutdown"><span class="footer-icon footer-icon-red">&#9210;</span> Turn Off Computer</button>
     </div>
   </div>
 
