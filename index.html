@@ -364,26 +364,41 @@
 
     /* ── Boot (BIOS-style POST) ── */
     .boot-stage { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1.3rem; text-align: center; }
-    .boot-screen.phase-boot .boot-stage-boot { display: flex; }
-    .boot-logo {
-      font-family: Tahoma, sans-serif; font-weight: 700; font-size: 1.6rem;
-      letter-spacing: .02em;
+    .boot-screen.phase-boot { background: #000; }
+    .boot-screen.phase-boot .boot-stage-boot { display: flex; position: absolute; inset: 0; }
+    .boot-logo-wrap { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+    .boot-flag { filter: drop-shadow(1px 2px 2px rgba(0,0,0,.6)); }
+    .boot-wordmark { font-family: Tahoma, sans-serif; color: #fff; line-height: 1.05; }
+    .boot-wordmark small { display: block; font-size: .68rem; font-weight: 400; color: #bbb; letter-spacing: .03em; }
+    .boot-wordmark b { font-size: 2.3rem; font-weight: 700; }
+    .boot-wordmark i {
+      font-style: italic; font-size: 1.15rem; color: #ff9d2e;
+      margin-left: .25rem; vertical-align: top;
     }
-    .boot-logo span { color: var(--accent-light); }
     .boot-bar {
-      width: 220px; height: 12px;
-      border: 1px solid #666; border-radius: 2px;
+      width: 220px; height: 15px; margin-top: .4rem;
+      border: 1px solid #4a4a4a; border-radius: 1px;
       overflow: hidden;
-      background: #111;
+      background: #000;
+      position: relative;
     }
-    .boot-bar-fill {
-      width: 40%; height: 100%;
-      background: linear-gradient(90deg,#0a3faa,#3d94f6,#0a3faa);
-      background-size: 200% 100%;
-      animation: boot-fill 1.1s linear infinite;
+    .boot-bar span {
+      position: absolute; top: 1px; bottom: 1px; width: 30px;
+      background: linear-gradient(90deg,#1748b0,#5b9df9,#1748b0);
+      animation: boot-block 1.6s linear infinite;
+      left: -30px;
     }
-    @keyframes boot-fill { from { background-position: 0% 0; } to { background-position: -200% 0; } }
-    .boot-caption { font-size: .75rem; color: #999; }
+    .boot-bar span:nth-child(2) { animation-delay: .25s; }
+    .boot-bar span:nth-child(3) { animation-delay: .5s; }
+    @keyframes boot-block { from { left: -30px; } to { left: 220px; } }
+    .boot-caption { font-family: Tahoma, sans-serif; font-size: .75rem; color: #999; }
+    .boot-footer {
+      position: absolute; left: 0; right: 0; bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1rem, 4vw, 2.4rem);
+      font-family: Tahoma, sans-serif; font-size: .68rem; color: #777;
+    }
+    .boot-footer .boot-footer-brand { font-weight: 700; color: #999; }
 
     /* ── Login (XP Welcome screen) ── */
     .boot-screen.phase-login { background: #3a63c8; }
@@ -789,9 +804,21 @@
   <div class="boot-screen phase-boot" id="boot-screen">
     <!-- POST/Boot stage -->
     <div class="boot-stage boot-stage-boot">
-      <div class="boot-logo">The <span>Boolean</span> Julian</div>
-      <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+      <div class="boot-logo-wrap">
+        <svg class="boot-flag" width="70" height="70" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
+          <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
+          <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
+          <path fill="#ffb900" d="M8 8h7l-.5 6.5L8 14.5z"/>
+        </svg>
+        <div class="boot-wordmark"><small>Migusoft&reg;</small><b>Aperture</b><i>XD</i></div>
+      </div>
+      <div class="boot-bar"><span></span><span></span><span></span></div>
       <div class="boot-caption" id="boot-caption">Starting up&hellip;</div>
+      <div class="boot-footer">
+        <span>Copyright &copy; Migusoft Corporation</span>
+        <span class="boot-footer-brand">Migusoft</span>
+      </div>
     </div>
 
     <!-- Login / Welcome stage -->
