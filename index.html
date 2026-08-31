@@ -70,7 +70,7 @@
 
     /* ── TASKBAR ── */
     .taskbar {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000;
       height: 34px;
       display: flex; align-items: center; gap: .5rem;
       padding: 2px 4px;
@@ -471,27 +471,36 @@
     }
 
     /* ── Shutdown / Restart ── */
+    .boot-screen.shutdown { background: #3a63c8; }
     .boot-screen.shutdown .boot-stage-shutdown { display: flex; }
+    .boot-stage-shutdown {
+      position: absolute; inset: 0;
+      flex-direction: column; align-items: stretch; justify-content: flex-start;
+      gap: 0; text-align: center;
+    }
+    .shutdown-bar {
+      flex-shrink: 0; height: 64px;
+      background: linear-gradient(180deg,#0d3aad,#082a86);
+    }
+    .shutdown-bar-top { border-bottom: 1px solid #4d76d9; }
+    .shutdown-bar-bottom { border-top: 1px solid #4d76d9; }
     .shutdown-panel {
-      width: min(460px, 88vw);
-      display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
-      padding: 2.6rem 2rem;
-      background: radial-gradient(circle at 30% 20%, #6f92dd, #2748a0 75%);
-      border-top: 5px solid #0a2c74;
-      border-bottom: 5px solid #0a2c74;
-      box-shadow: 0 10px 40px rgba(0,0,0,.6);
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem;
+      background: radial-gradient(circle at 30% 20%, #c3d5f8, #4066c9 55%, #2748a0 100%);
       color: #fff;
       animation: shutdown-pulse 2.4s ease-in-out infinite;
     }
     .shutdown-logo { flex-shrink: 0; filter: drop-shadow(1px 2px 2px rgba(0,0,0,.4)); }
     @keyframes shutdown-pulse { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
-    .shutdown-hint { font-family: Tahoma, sans-serif; font-size: 1.1rem; font-weight: 700; text-align: center; text-shadow: 1px 1px 2px #000; }
-    .shutdown-caption { font-family: Tahoma, sans-serif; font-size: .78rem; color: #d3ddf8; text-align: center; }
+    .shutdown-hint { font-family: Tahoma, sans-serif; font-size: 1.3rem; font-weight: 700; text-align: center; text-shadow: 1px 1px 2px #000; }
+    .shutdown-caption { font-family: Tahoma, sans-serif; font-size: .85rem; color: #d3ddf8; text-align: center; }
     /* Safe-to-turn-off state */
     .boot-screen.safe .boot-stage-shutdown { display: flex; }
     .boot-screen.safe { background: #000; }
+    .boot-screen.safe .shutdown-bar { display: none; }
     .boot-screen.safe .shutdown-panel {
-      animation: none; background: none; border: none; box-shadow: none; gap: .6rem;
+      animation: none; background: none; gap: .6rem;
     }
     .boot-screen.safe .shutdown-logo { display: none; }
     .boot-screen.safe .shutdown-hint {
@@ -681,7 +690,7 @@
 
     /* ── MESSAGE BOX ── */
     .msgbox-overlay {
-      position: fixed; inset: 0; z-index: 1000;
+      position: fixed; inset: 0; z-index: 4000;
       background: rgba(0,0,0,.35);
       display: flex; align-items: center; justify-content: center;
       padding: 1rem;
@@ -699,7 +708,7 @@
     .game-window {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       width: min(94vw, var(--game-w, 480px));
-      z-index: 500;
+      z-index: 3500;
     }
     .game-window .game-body {
       overflow: auto;
@@ -822,8 +831,9 @@
 
     <!-- Shutdown / Restart stage -->
     <div class="boot-stage boot-stage-shutdown">
+      <div class="shutdown-bar shutdown-bar-top"></div>
       <div class="shutdown-panel" id="shutdown-box">
-        <svg class="shutdown-logo" width="56" height="56" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+        <svg class="shutdown-logo" width="64" height="64" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
           <path fill="#f25022" d="M1 1l6 .5V7H1z"/>
           <path fill="#7fba00" d="M8 1.5L15 1v6H8z"/>
           <path fill="#00a4ef" d="M1 8h6v6.5L1 15z"/>
@@ -832,6 +842,7 @@
         <div class="shutdown-hint" id="shutdown-hint">Aperture XD is shutting down&hellip;</div>
         <div class="shutdown-caption" id="shutdown-caption">Please wait while your session is ending.</div>
       </div>
+      <div class="shutdown-bar shutdown-bar-bottom"></div>
     </div>
   </div>
 
@@ -1564,6 +1575,14 @@
       playSound('click');
     }
 
+    function closeWindow(card) {
+      const wid = ensureWid(card);
+      card.classList.add('wm-closed');
+      const chip = document.querySelector(`.taskbar-item-window[data-wid="${wid}"]`);
+      if (chip) chip.remove();
+      playSound('click');
+    }
+
     function toggleMaximize(card) {
       if (card.classList.contains('wm-maximized')) {
         card.classList.remove('wm-maximized');
@@ -1585,7 +1604,7 @@
       e.preventDefault();
       e.stopPropagation();
       const action = btn.getAttribute('aria-label');
-      if (action === 'Close') hideToTaskbar(card);
+      if (action === 'Close') closeWindow(card);
       else if (action === 'Minimize') hideToTaskbar(card);
       else if (action === 'Maximize' || action === 'Restore') toggleMaximize(card);
     }, true);
