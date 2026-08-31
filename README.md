@@ -20,7 +20,7 @@ A GitHub Pages landing page for [@TheBooleanJulian](https://github.com/TheBoolea
 ## Features
 
 - Dynamic project showcase powered by the GitHub API (no manual list maintenance), auto-categorized by use case into selectable tabs
-- Windows XP-themed desktop: draggable-free windows with minimize/maximize/close and taskbar restore, a Start Menu, desktop icons, and a boot/shutdown screen
+- Aperture XD-themed desktop: draggable-free windows with minimize/maximize/close and taskbar restore, a Start Menu, desktop icons, and a boot/shutdown screen
 - 8 playable mini-games (Tic Tac Toe, Minesweeper, Battleship, Mancala, Blackjack, Solitaire, Chess, Pinball) plus MS Paint, Notepad, and a music visualizer
 - No build step — plain HTML/CSS/JS, no bundler or framework
 - Hosted on GitHub Pages at [thebooleanjulian.github.io](https://thebooleanjulian.github.io/)
