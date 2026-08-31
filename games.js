@@ -24,6 +24,9 @@ function createGameWindow(id, icon, title, widthPx) {
     <div class="window-body game-body"></div>`;
   document.body.appendChild(card);
   bringToFront(card);
+  window.JulianOS?.makeDraggable(card);
+  window.JulianOS?.makeResizable(card, { minWidth: 260, minHeight: 200 });
+  window.JulianOS?.trackWindow(card);
   // Freeze the initial centered position in pixels so later content
   // re-renders don't shift the window via the percentage-based transform
   // used for the first paint. Deferred to the next frame so it measures
