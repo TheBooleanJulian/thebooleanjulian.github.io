@@ -36,7 +36,7 @@
     overlay.className = 'msgbox-overlay';
     overlay.id = 'run-dialog';
     overlay.innerHTML = `
-      <div class="card window msgbox">
+      <div class="card window msgbox" role="dialog" aria-modal="true" aria-label="Run">
         <div class="title-bar">
           <div class="title-bar-text"><span class="xp-icon">&#128190;</span> Run</div>
           <div class="title-bar-controls"><button aria-label="Close" data-msgbox-close></button></div>

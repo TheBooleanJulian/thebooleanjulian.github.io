@@ -1877,7 +1877,7 @@
       const overlay = document.createElement('div');
       overlay.className = 'msgbox-overlay';
       overlay.innerHTML = `
-        <div class="card window msgbox">
+        <div class="card window msgbox" role="dialog" aria-modal="true" aria-label="${escHtml(title)}">
           <div class="title-bar">
             <div class="title-bar-text"><span class="xp-icon">${icon}</span> ${escHtml(title)}</div>
             <div class="title-bar-controls">
@@ -1895,6 +1895,7 @@
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay || e.target.closest('[data-msgbox-close]')) overlay.remove();
       });
+      overlay.querySelector('.btn-primary')?.focus();
       playSound('notify');
     }
 

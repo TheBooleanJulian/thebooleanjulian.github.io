@@ -156,7 +156,7 @@
       pane.innerHTML = `
         <div class="explorer-row explorer-head"><span>Name</span><span>Type</span></div>
         ${items.map((it) => `
-          <div class="explorer-row${it.name === state.selected ? ' selected' : ''}" data-name="${escHtml(it.name)}" tabindex="0">
+          <div class="explorer-row${it.name === state.selected ? ' selected' : ''}" data-name="${escHtml(it.name)}" tabindex="0" role="button" aria-label="${escHtml(it.name)}, ${it.type === 'folder' ? 'File Folder' : fileKind(it)}">
             <span><span class="xp-icon">${it.icon}</span> ${escHtml(it.name)}</span>
             <span>${it.type === 'folder' ? 'File Folder' : fileKind(it)}</span>
           </div>`).join('')}
@@ -183,15 +183,15 @@
     body.dataset.mounted = '1';
     body.innerHTML = `
       <div class="xp-addressbar explorer-toolbar">
-        <button class="btn" id="exp-back" title="Back">&#8592;</button>
-        <button class="btn" id="exp-forward" title="Forward">&#8594;</button>
-        <button class="btn" id="exp-up" title="Up one level">&#8593;</button>
+        <button class="btn" id="exp-back" title="Back" aria-label="Back">&#8592;</button>
+        <button class="btn" id="exp-forward" title="Forward" aria-label="Forward">&#8594;</button>
+        <button class="btn" id="exp-up" title="Up one level" aria-label="Up one level">&#8593;</button>
         <span class="explorer-address"><span class="xp-icon">&#128193;</span><span id="exp-path"></span></span>
-        <select id="exp-view" title="View">
+        <select id="exp-view" title="View" aria-label="View">
           <option value="icons">Icons</option>
           <option value="details">Details</option>
         </select>
-        <select id="exp-sort" title="Sort by">
+        <select id="exp-sort" title="Sort by" aria-label="Sort by">
           <option value="name">Name</option>
           <option value="type">Type</option>
         </select>

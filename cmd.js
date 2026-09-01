@@ -124,10 +124,10 @@
     if (body.dataset.mounted) return body;
     body.dataset.mounted = '1';
     body.innerHTML = `
-      <div class="cmd-screen" id="cmd-output"></div>
+      <div class="cmd-screen" id="cmd-output" role="log" aria-label="Command output"></div>
       <div class="cmd-inputrow">
         <span id="cmd-prompt"></span>
-        <input type="text" id="cmd-input" autocomplete="off" spellcheck="false">
+        <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" aria-label="Command input">
       </div>
     `;
     outputEl = body.querySelector('#cmd-output');

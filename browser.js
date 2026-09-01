@@ -68,10 +68,10 @@
     body.dataset.mounted = '1';
     body.innerHTML = `
       <div class="xp-addressbar explorer-toolbar">
-        <button class="btn" id="ie-back" title="Back">&#8592;</button>
-        <button class="btn" id="ie-forward" title="Forward">&#8594;</button>
-        <button class="btn" id="ie-home" title="Home">&#127968;</button>
-        <input type="text" id="ie-address" readonly style="flex:1">
+        <button class="btn" id="ie-back" title="Back" aria-label="Back">&#8592;</button>
+        <button class="btn" id="ie-forward" title="Forward" aria-label="Forward">&#8594;</button>
+        <button class="btn" id="ie-home" title="Home" aria-label="Home">&#127968;</button>
+        <input type="text" id="ie-address" readonly aria-label="Current address" style="flex:1">
       </div>
       <div class="ie-page" id="ie-page"></div>
       <div class="status-bar"><p class="status-bar-field" id="ie-status" style="flex:1"></p></div>
