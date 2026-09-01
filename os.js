@@ -350,6 +350,48 @@
     }
   });
 
+  /* ── Context menu (generic, reusable — Explorer items and the
+     desktop's own right-click menu both go through this one). ── */
+  let openMenu = null;
+  function closeContextMenu() {
+    openMenu?.remove();
+    openMenu = null;
+    document.removeEventListener('mousedown', onOutsideMenuClick, true);
+  }
+  function onOutsideMenuClick(e) { if (!openMenu?.contains(e.target)) closeContextMenu(); }
+
+  function showContextMenu(x, y, items) {
+    closeContextMenu();
+    const menu = document.createElement('div');
+    menu.className = 'xp-context-menu';
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.innerHTML = items.map((it, i) => it.sep
+      ? '<div class="xp-context-sep"></div>'
+      : `<button class="xp-context-item" data-idx="${i}"${it.disabled ? ' disabled' : ''}>${escHtml(it.label)}</button>`
+    ).join('');
+    menu.addEventListener('click', (e) => {
+      const btn = e.target.closest('.xp-context-item');
+      if (!btn || btn.disabled) return;
+      items[+btn.dataset.idx].action?.();
+      closeContextMenu();
+    });
+    document.body.appendChild(menu);
+    requestAnimationFrame(() => {
+      const rect = menu.getBoundingClientRect();
+      if (rect.right > window.innerWidth) menu.style.left = Math.max(4, window.innerWidth - rect.width - 4) + 'px';
+      if (rect.bottom > window.innerHeight) menu.style.top = Math.max(4, window.innerHeight - rect.height - 4) + 'px';
+    });
+    openMenu = menu;
+    document.addEventListener('mousedown', onOutsideMenuClick, true);
+  }
+
+  // Escape closes the topmost context menu first, so the shell's own
+  // Escape handling (Start Menu, dialogs) doesn't also have to fire.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && openMenu) { e.stopPropagation(); closeContextMenu(); }
+  }, true);
+
   /* ── Application Registry ── */
   function registerApp(def) { state.apps.set(def.id, def); }
   function getApp(id) { return state.apps.get(id); }
@@ -363,6 +405,7 @@
     registerApp, getApp, launch,
     bringToFront, minimizeWindow, restoreWindow, closeWindow, toggleMaximize,
     openWindow, makeDraggable, makeResizable, showDesktop, openWindows, trackWindow,
+    showContextMenu, closeContextMenu,
   };
 
   // Back-compat globals for games.js and the page's inline script.

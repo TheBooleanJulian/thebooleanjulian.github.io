@@ -106,43 +106,7 @@
     showMessageBox(`${node.name} Properties`, '&#128203;', bodyHtml);
   }
 
-  /* ── Context menu (generic, reusable) ── */
-  let openMenu = null;
-  function closeContextMenu() {
-    openMenu?.remove();
-    openMenu = null;
-    document.removeEventListener('mousedown', onOutsideClick, true);
-    document.removeEventListener('keydown', onEscClose);
-  }
-  function onOutsideClick(e) { if (!openMenu?.contains(e.target)) closeContextMenu(); }
-  function onEscClose(e) { if (e.key === 'Escape') closeContextMenu(); }
-
-  function showContextMenu(x, y, items) {
-    closeContextMenu();
-    const menu = document.createElement('div');
-    menu.className = 'xp-context-menu';
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-    menu.innerHTML = items.map((it, i) => it.sep
-      ? '<div class="xp-context-sep"></div>'
-      : `<button class="xp-context-item" data-idx="${i}"${it.disabled ? ' disabled' : ''}>${escHtml(it.label)}</button>`
-    ).join('');
-    menu.addEventListener('click', (e) => {
-      const btn = e.target.closest('.xp-context-item');
-      if (!btn || btn.disabled) return;
-      items[+btn.dataset.idx].action?.();
-      closeContextMenu();
-    });
-    document.body.appendChild(menu);
-    requestAnimationFrame(() => {
-      const rect = menu.getBoundingClientRect();
-      if (rect.right > window.innerWidth) menu.style.left = Math.max(4, window.innerWidth - rect.width - 4) + 'px';
-      if (rect.bottom > window.innerHeight) menu.style.top = Math.max(4, window.innerHeight - rect.height - 4) + 'px';
-    });
-    openMenu = menu;
-    document.addEventListener('mousedown', onOutsideClick, true);
-    document.addEventListener('keydown', onEscClose);
-  }
+  const { showContextMenu, closeContextMenu } = window.JulianOS;
 
   function itemContextMenu(node, path) {
     const items = [];
@@ -259,5 +223,5 @@
     navigate(path || [], true);
   }
 
-  window.JulianExplorer = { open: openExplorer, refresh: render, showContextMenu, closeContextMenu, showProperties };
+  window.JulianExplorer = { open: openExplorer, refresh: render, showProperties };
 })();

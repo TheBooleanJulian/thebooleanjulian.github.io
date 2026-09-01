@@ -1109,6 +1109,7 @@
         <button class="start-menu-item" data-action="open-mediaplayer"><span class="smi-icon">&#127925;</span> Media Player</button>
         <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="recyclebin"><span class="smi-icon">&#128465;&#65039;</span> Recycle Bin</button>
+        <button class="start-menu-item" data-action="open-run"><span class="smi-icon">&#128190;</span> Run...</button>
       </div>
     </div>
     <div class="start-menu-allprograms">
@@ -1149,6 +1150,7 @@
   <script src="os.js"></script>
   <script src="fs.js"></script>
   <script src="explorer.js"></script>
+  <script src="shell.js"></script>
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
     const AVATAR_URL  = 'assets/tbj-v2.png';
@@ -1701,6 +1703,7 @@
       'open-paint': 'paint',
       'open-mediaplayer': 'mediaplayer',
       'recyclebin': 'recyclebin',
+      'open-run': 'run',
     };
 
     startMenu.addEventListener('click', (e) => {
