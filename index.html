@@ -862,6 +862,66 @@
     .julianos-high-contrast .window-body { background: #fff !important; }
     .desktop-icons.julianos-icons-hidden { display: none !important; }
 
+    /* ── NOTIFICATIONS ── */
+    .notify-stack {
+      position: fixed; right: 8px; bottom: 42px; z-index: 7000;
+      display: flex; flex-direction: column-reverse; gap: .5rem;
+      pointer-events: none;
+    }
+    .notify-balloon {
+      position: relative; pointer-events: auto;
+      width: min(280px, 78vw);
+      background: linear-gradient(180deg,#fffce0,#ffefa8);
+      border: 1px solid #d8b400;
+      box-shadow: 2px 3px 10px rgba(0,0,0,.4);
+      padding: .6rem .7rem .7rem;
+      opacity: 0; transform: translateY(12px) scale(.97);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .notify-balloon.notify-in { opacity: 1; transform: translateY(0) scale(1); }
+    .notify-balloon.notify-out { opacity: 0; transform: translateY(6px) scale(.98); }
+    .notify-tip {
+      position: absolute; right: 18px; bottom: -8px;
+      width: 14px; height: 14px;
+      background: #ffefa8; border-right: 1px solid #d8b400; border-bottom: 1px solid #d8b400;
+      transform: rotate(45deg);
+    }
+    .notify-head { display: flex; align-items: center; gap: .4rem; margin-bottom: .3rem; }
+    .notify-icon { font-size: 1.1rem; }
+    .notify-title { flex: 1; font-family: Tahoma, sans-serif; font-weight: 700; font-size: .82rem; color: #4a3c00; }
+    .notify-close { background: none; border: none; min-width: unset; padding: 0 .2rem; font-size: 1rem; line-height: 1; cursor: pointer; color: #4a3c00; }
+    .notify-body { font-family: Tahoma, sans-serif; font-size: .78rem; color: #4a3c00; }
+
+    /* ── ACHIEVEMENTS ── */
+    .ach-list { max-height: 40vh; overflow-y: auto; }
+    .ach-row {
+      display: flex; align-items: flex-start; gap: .6rem;
+      padding: .5rem .2rem; border-bottom: 1px solid #eee;
+      font-family: Tahoma, sans-serif; opacity: .55;
+    }
+    .ach-row.ach-done { opacity: 1; }
+    .ach-check { font-size: 1.1rem; flex-shrink: 0; line-height: 1.3; }
+    .ach-text { display: flex; flex-direction: column; font-size: .82rem; }
+    .ach-desc { font-size: .72rem; color: var(--muted); }
+
+    /* ── EASTER EGGS ── */
+    @keyframes julianos-konami-spin-kf { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+    .julianos-konami-spin { animation: julianos-konami-spin-kf 1.2s linear; }
+    .miku-exe {
+      display: flex; flex-direction: column; align-items: center; gap: .8rem;
+      padding: 2rem 1rem; text-align: center;
+      background: #000; color: #4dd8ff;
+    }
+    .miku-exe-glow { font-size: 3rem; animation: julianos-konami-spin-kf 3s linear infinite; }
+    .miku-exe p { font-family: 'JetBrains Mono', monospace; font-size: .85rem; line-height: 1.6; }
+    .bsod {
+      position: fixed; inset: 0; z-index: 9998;
+      background: #0000aa; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem; cursor: pointer;
+    }
+    .bsod-text { max-width: 620px; font-family: 'Perfect DOS VGA 437 Win', monospace; font-size: 1.1rem; line-height: 1.7; }
+
     /* ── SORT / FILTER BAR ── */
     .xp-addressbar { flex-wrap: wrap; }
     .xp-filterbar { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
@@ -1294,17 +1354,21 @@
     <div class="taskbar-tray">
       <button class="sound-toggle" id="sound-toggle" title="Sound is off" aria-label="Toggle sound effects">&#128264;</button>
       <button class="sound-toggle" id="show-desktop-btn" title="Show Desktop" aria-label="Show Desktop (minimize all windows)">&#128736;</button>
+      <button class="sound-toggle" id="achievements-btn" title="Achievements" aria-label="Open Achievements">&#127942;</button>
       <span id="clock"></span>
     </div>
   </div>
 
   <script src="os.js"></script>
+  <script src="notifications.js"></script>
   <script src="fs.js"></script>
   <script src="explorer.js"></script>
   <script src="browser.js"></script>
   <script src="cmd.js"></script>
   <script src="taskmgr.js"></script>
   <script src="controlpanel.js"></script>
+  <script src="achievements.js"></script>
+  <script src="easter-eggs.js"></script>
   <script src="shell.js"></script>
   <script src="persist.js"></script>
   <script>
@@ -1630,6 +1694,27 @@
       }
     }
 
+    const SEEN_REPOS_KEY = 'julianos:seen-repos';
+    function notifyNewRepos(repos) {
+      let seen;
+      try { seen = JSON.parse(localStorage.getItem(SEEN_REPOS_KEY)); } catch (err) { seen = null; }
+      const names = repos.map((r) => r.name);
+      if (Array.isArray(seen)) {
+        const seenSet = new Set(seen);
+        const added = names.filter((n) => !seenSet.has(n));
+        if (added.length && added.length < names.length) {
+          const first = added[0];
+          const rest = added.length - 1;
+          JulianNotify.notify(
+            'New Project',
+            `<b>${escHtml(first)}</b>${rest ? ` and ${rest} more` : ''} ${added.length > 1 ? 'have' : 'has'} been added to My Projects.`,
+            '&#128193;'
+          );
+        }
+      }
+      try { localStorage.setItem(SEEN_REPOS_KEY, JSON.stringify(names)); } catch (err) { /* unavailable */ }
+    }
+
     function showRepos(repos, staleNotice) {
       allRepos = repos;
       populateLangFilter(repos);
@@ -1637,6 +1722,7 @@
       loadReadmeThumbnails(repos);
       JulianFS.setProjectRepos(repos);
       JulianExplorer.refresh();
+      notifyNewRepos(repos);
       if (staleNotice) {
         document.getElementById('repo-grid').insertAdjacentHTML('beforebegin', staleNotice);
       }
@@ -1917,6 +2003,8 @@
       playSound('click');
     });
 
+    document.getElementById('achievements-btn').addEventListener('click', () => JulianOS.launch('achievements'));
+
     // The two content windows are draggable via the shared WM. Corner-handle
     // resize is intentionally not wired up here: both are normal in-flow
     // page content (their height is "all the content"), not a bounded
@@ -1967,6 +2055,7 @@
       playSound('startup');
       bootScreen.classList.add('hidden');
       JulianPersist.restoreOnce();
+      JulianAchievements.unlock('welcome');
     }
 
     function doShutdown() {

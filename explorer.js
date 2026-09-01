@@ -56,6 +56,7 @@
       state.history.push(state.path.slice());
       state.historyIndex = state.history.length - 1;
     }
+    if (node.egg) window.JulianAchievements?.unlock(node.egg);
     saveLastPath();
     render();
   }
@@ -141,7 +142,7 @@
     body.querySelector('#exp-forward').disabled = state.historyIndex >= state.history.length - 1;
     body.querySelector('#exp-up').disabled = !state.path.length;
 
-    const items = (node?.children || []).slice().sort((a, b) => {
+    const items = (node?.children || []).filter((c) => !c.hidden).sort((a, b) => {
       if (state.sort === 'type' && a.type !== b.type) return a.type === 'folder' ? -1 : 1;
       return a.name.localeCompare(b.name);
     });

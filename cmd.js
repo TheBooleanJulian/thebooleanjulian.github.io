@@ -76,7 +76,7 @@
     },
     dir() {
       const node = window.JulianFS.resolve(cwd);
-      const items = node?.children || [];
+      const items = (node?.children || []).filter((c) => !c.hidden);
       print(` Directory of ${pathString()}`);
       print('');
       if (!items.length) print('File Not Found');
@@ -90,8 +90,12 @@
       if (arg === '\\' || arg.toUpperCase() === 'C:\\') { cwd = []; return; }
       const target = [...cwd, arg];
       const node = window.JulianFS.resolve(target);
-      if (node && node.type === 'folder') cwd = target;
-      else print(`The system cannot find the path specified: ${escHtml(arg)}`);
+      if (node && node.type === 'folder') {
+        cwd = target;
+        if (node.egg) window.JulianAchievements?.unlock(node.egg);
+      } else {
+        print(`The system cannot find the path specified: ${escHtml(arg)}`);
+      }
     },
     whoami() { print('JULIANOS\\guest'); },
     date() { print(new Date().toString()); },
@@ -99,6 +103,11 @@
     exit() { window.JulianOS.closeWindow(body); },
   };
   COMMANDS.clear = COMMANDS.cls;
+  COMMANDS['miku.exe'] = () => {
+    print('Running miku.exe&hellip;');
+    window.JulianEgg?.runMikuExe();
+  };
+  COMMANDS.crash = () => window.JulianEgg?.crash();
 
   function runCommand(raw) {
     print(`${escHtml(prompt())} ${escHtml(raw)}`);

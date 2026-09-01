@@ -52,6 +52,12 @@
     folder('Games', '&#127918;', []),      // populated by setGames()
     folder('System', '&#128421;\uFE0F', [
       file('about.sys', '&#128221;', { action: 'open-text', text: DOCS.system }),
+      Object.assign(folder('Secret', '&#128274;', [
+        file('you-found-it.txt', '&#128221;', {
+          action: 'open-text',
+          text: "You found the secret folder.\n\nMost visitors never look in C:\\System\\Secret \u2014 you did.\nCheck Achievements (the trophy icon in the tray) for your reward.",
+        }),
+      ]), { hidden: true, egg: 'secret-folder' }),
     ]),
   ]);
 
