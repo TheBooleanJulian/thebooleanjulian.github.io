@@ -753,6 +753,22 @@
     .xp-context-item:hover { background: var(--accent); color: #fff; }
     .xp-context-sep { height: 1px; margin: 3px 4px; background: #ddd; }
 
+    /* ── INTERNET EXPLORER ── */
+    .ie-page { flex: 1; min-height: 260px; max-height: 46vh; overflow: auto; background: #fff; padding: .9rem; }
+    .ie-links { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .ie-link {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .8rem;
+      font-family: Tahoma, sans-serif; font-size: .8rem; color: var(--text);
+      background: linear-gradient(180deg,#fefefe,#ece9d8 60%,#d4d0c8);
+      border: 1px solid #8f8f8f; border-radius: 3px; cursor: pointer;
+    }
+    .ie-link:hover { border-color: var(--accent); }
+    .ie-link-icon { font-size: 1.1rem; }
+    .ie-redirect { display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: 2rem 0; text-align: center; }
+    .ie-redirect-icon { font-size: 2.2rem; }
+    .ie-redirect p { font-family: Tahoma, sans-serif; font-size: .82rem; color: var(--muted); word-break: break-all; }
+
     /* ── SORT / FILTER BAR ── */
     .xp-addressbar { flex-wrap: wrap; }
     .xp-filterbar { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
@@ -966,6 +982,10 @@
       <span class="desktop-icon-glyph">&#128025;</span>
       <span class="desktop-icon-label">GitHub</span>
     </button>
+    <button class="desktop-icon" id="icon-iexplorer" title="Double-click to open">
+      <span class="desktop-icon-glyph">&#127760;</span>
+      <span class="desktop-icon-label">Internet Explorer</span>
+    </button>
     <button class="desktop-icon" id="icon-games" title="Double-click to open">
       <span class="desktop-icon-glyph">&#127918;</span>
       <span class="desktop-icon-label">Games</span>
@@ -1097,6 +1117,7 @@
         </button>
         <div class="start-menu-divider"></div>
         <button class="start-menu-item" data-action="open-games"><span class="smi-icon">&#127918;</span> Games</button>
+        <button class="start-menu-item" data-action="open-iexplorer"><span class="smi-icon">&#127760;</span> Internet Explorer</button>
         <a class="start-menu-item" href="https://github.com/TheBooleanJulian" target="_blank" rel="noopener"><span class="smi-icon">&#128025;</span> GitHub</a>
         <a class="start-menu-item" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener"><span class="smi-icon">&#128188;</span> LinkedIn</a>
       </div>
@@ -1150,6 +1171,7 @@
   <script src="os.js"></script>
   <script src="fs.js"></script>
   <script src="explorer.js"></script>
+  <script src="browser.js"></script>
   <script src="shell.js"></script>
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
@@ -1698,6 +1720,7 @@
       'open-projects': 'projects',
       'open-mycomputer': 'mycomputer',
       'open-documents': 'documents',
+      'open-iexplorer': 'iexplorer',
       'open-games': 'games',
       'open-notepad': 'notepad',
       'open-paint': 'paint',
@@ -1731,6 +1754,7 @@
     attachActivate(document.getElementById('icon-mycomputer'), () => JulianOS.launch('mycomputer'));
     attachActivate(document.getElementById('icon-projects'), () => JulianOS.launch('projects'));
     attachActivate(document.getElementById('icon-github'), () => JulianOS.launch('github'));
+    attachActivate(document.getElementById('icon-iexplorer'), () => JulianOS.launch('iexplorer'));
     attachActivate(document.getElementById('icon-games'), () => JulianOS.launch('games'));
     attachActivate(document.getElementById('icon-notepad'), () => JulianOS.launch('notepad'));
     attachActivate(document.getElementById('icon-paint'), () => JulianOS.launch('paint'));

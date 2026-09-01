@@ -8,7 +8,7 @@
 (function () {
   /* ── Run dialog ── */
   const RUN_COMMANDS = [
-    'aboutme', 'projects', 'mycomputer', 'documents', 'github',
+    'aboutme', 'projects', 'mycomputer', 'documents', 'github', 'iexplorer',
     'games', 'notepad', 'paint', 'mediaplayer', 'recyclebin',
   ];
 
