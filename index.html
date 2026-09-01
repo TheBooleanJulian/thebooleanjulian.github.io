@@ -808,6 +808,60 @@
     .ie-redirect-icon { font-size: 2.2rem; }
     .ie-redirect p { font-family: Tahoma, sans-serif; font-size: .82rem; color: var(--muted); word-break: break-all; }
 
+    /* ── COMMAND PROMPT ── */
+    .cmd-screen {
+      flex: 1; min-height: 260px; max-height: 46vh; overflow-y: auto;
+      background: #000; color: #ccc;
+      font-family: 'Perfect DOS VGA 437 Win', 'JetBrains Mono', monospace;
+      font-size: .95rem; line-height: 1.4;
+      padding: .6rem .7rem;
+    }
+    .cmd-inputrow {
+      display: flex; align-items: center; gap: .4rem;
+      background: #000; padding: 0 .7rem .6rem;
+    }
+    .cmd-inputrow span {
+      font-family: 'Perfect DOS VGA 437 Win', 'JetBrains Mono', monospace;
+      font-size: .95rem; color: #ccc; white-space: nowrap;
+    }
+    .cmd-inputrow input {
+      flex: 1; background: #000; border: none; outline: none;
+      color: #ccc; font-family: 'Perfect DOS VGA 437 Win', 'JetBrains Mono', monospace;
+      font-size: .95rem; padding: 0;
+    }
+
+    /* ── TASK MANAGER ── */
+    .tm-section { padding: .5rem 0; }
+    .tm-section-title { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .tm-apps { max-height: 32vh; overflow-y: auto; border: 1px solid #a8c4e0; background: #fff; }
+    .tm-row {
+      display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: .5rem;
+      padding: .35rem .5rem; font-family: Tahoma, sans-serif; font-size: .78rem;
+      border-bottom: 1px solid #eee;
+    }
+    .tm-row-status { color: var(--muted); font-size: .72rem; }
+    .tm-row .btn { min-width: unset; padding: .15rem .5rem; font-size: .72rem; }
+    .tm-perf-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+    .tm-perf-label { width: 80px; font-family: Tahoma, sans-serif; font-size: .78rem; flex-shrink: 0; }
+    .tm-perf-bar { flex: 1; height: 12px; background: #000; border: 1px solid #666; overflow: hidden; }
+    .tm-perf-fill { height: 100%; transition: width .5s ease; }
+    .tm-perf-cpu { background: repeating-linear-gradient(90deg,#1ee01e 0 2px,#0a0 2px 3px); }
+    .tm-perf-mem { background: repeating-linear-gradient(90deg,#ffb400 0 2px,#a06a00 2px 3px); }
+    .tm-perf-val { width: 190px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--muted); }
+
+    /* ── CONTROL PANEL ── */
+    .cp-intro { font-size: .78rem; color: var(--muted); margin-bottom: .8rem; }
+    .cp-group { margin-bottom: .8rem; }
+    .cp-row { display: flex; align-items: center; gap: .5rem; padding: .3rem 0; font-family: Tahoma, sans-serif; font-size: .82rem; cursor: pointer; }
+    .cp-danger { display: flex; align-items: center; gap: .7rem; padding-top: .4rem; border-top: 1px solid #ddd; }
+    .cp-danger-note { font-size: .72rem; color: var(--muted); }
+
+    /* ── ACCESSIBILITY OVERRIDES (Control Panel) ── */
+    .julianos-reduce-motion, .julianos-reduce-motion * { animation-duration: .001s !important; transition-duration: .001s !important; }
+    .julianos-high-contrast { filter: contrast(1.35) saturate(1.2); }
+    .julianos-high-contrast .window-body { background: #fff !important; }
+    .desktop-icons.julianos-icons-hidden { display: none !important; }
+
     /* ── SORT / FILTER BAR ── */
     .xp-addressbar { flex-wrap: wrap; }
     .xp-filterbar { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
@@ -1198,10 +1252,12 @@
       <div class="start-menu-right">
         <button class="start-menu-item" data-action="open-mycomputer"><span class="smi-icon">&#128187;</span> My Computer</button>
         <button class="start-menu-item" data-action="open-documents"><span class="smi-icon">&#128194;</span> My Documents</button>
+        <button class="start-menu-item" data-action="open-controlpanel"><span class="smi-icon">&#9881;&#65039;</span> Control Panel</button>
         <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="open-notepad"><span class="smi-icon">&#128221;</span> Notepad</button>
         <button class="start-menu-item" data-action="open-paint"><span class="smi-icon">&#127912;</span> Paint</button>
         <button class="start-menu-item" data-action="open-mediaplayer"><span class="smi-icon">&#127925;</span> Media Player</button>
+        <button class="start-menu-item" data-action="open-cmd"><span class="smi-icon">&#128421;&#65039;</span> Command Prompt</button>
         <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="recyclebin"><span class="smi-icon">&#128465;&#65039;</span> Recycle Bin</button>
         <button class="start-menu-item" data-action="open-run"><span class="smi-icon">&#128190;</span> Run...</button>
@@ -1246,6 +1302,9 @@
   <script src="fs.js"></script>
   <script src="explorer.js"></script>
   <script src="browser.js"></script>
+  <script src="cmd.js"></script>
+  <script src="taskmgr.js"></script>
+  <script src="controlpanel.js"></script>
   <script src="shell.js"></script>
   <script src="persist.js"></script>
   <script>
@@ -1709,19 +1768,23 @@
     }
 
     const soundToggle = document.getElementById('sound-toggle');
-    soundToggle.textContent = soundOn ? '\u{1F50A}' : '\u{1F508}';
-    soundToggle.title = soundOn ? 'Sound is on' : 'Sound is off';
-    soundToggle.addEventListener('click', () => {
-      soundOn = !soundOn;
+    function applySoundOn(on, opts) {
+      soundOn = on;
       try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch (err) { /* unavailable */ }
       soundToggle.textContent = soundOn ? '\u{1F50A}' : '\u{1F508}';
       soundToggle.title = soundOn ? 'Sound is on' : 'Sound is off';
-      if (soundOn) {
+      if (soundOn && !opts?.silent) {
         const ctx = getCtx();
         if (ctx.state === 'suspended') ctx.resume();
         playSound('startup');
       }
-    });
+    }
+    applySoundOn(soundOn, { silent: true });
+    soundToggle.addEventListener('click', () => applySoundOn(!soundOn));
+    // Exposed so Control Panel's "Enable sound effects" checkbox can drive
+    // the same state instead of duplicating it.
+    window.getSoundOn = () => soundOn;
+    window.setSoundOn = (on) => applySoundOn(on);
 
     /* ══════════════ MESSAGE BOX ══════════════ */
     function showMessageBox(title, icon, bodyHtml) {
@@ -1806,6 +1869,8 @@
       'open-notepad': 'notepad',
       'open-paint': 'paint',
       'open-mediaplayer': 'mediaplayer',
+      'open-controlpanel': 'controlpanel',
+      'open-cmd': 'cmd',
       'recyclebin': 'recyclebin',
       'open-run': 'run',
     };

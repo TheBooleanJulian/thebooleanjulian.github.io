@@ -16,6 +16,9 @@
   const REOPEN = {
     'window-explorer': () => (window.JulianExplorer?.openLast ? JulianExplorer.openLast() : JulianOS.launch('mycomputer')),
     'window-ie': () => JulianOS.launch('iexplorer'),
+    'window-cmd': () => JulianOS.launch('cmd'),
+    'window-taskmgr': () => JulianOS.launch('taskmgr'),
+    'window-controlpanel': () => JulianOS.launch('controlpanel'),
     'window-game-center': () => window.openGameCenter?.(),
     'app-notepad': () => window.launchNotepad?.(),
     'app-paint': () => window.launchPaint?.(),

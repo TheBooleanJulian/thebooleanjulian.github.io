@@ -27,6 +27,7 @@
   const RUN_COMMANDS = [
     'aboutme', 'projects', 'mycomputer', 'documents', 'github', 'iexplorer',
     'games', 'notepad', 'paint', 'mediaplayer', 'recyclebin',
+    'cmd', 'taskmgr', 'controlpanel',
   ];
 
   function showRunDialog() {
