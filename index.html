@@ -1173,6 +1173,7 @@
   <script src="explorer.js"></script>
   <script src="browser.js"></script>
   <script src="shell.js"></script>
+  <script src="persist.js"></script>
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
     const AVATAR_URL  = 'assets/tbj-v2.png';
@@ -1601,7 +1602,10 @@
 
     /* ══════════════ SOUND SYSTEM ══════════════ */
     let audioCtx = null;
-    let soundOn = false;
+    const SOUND_KEY = 'julianos:sound-on';
+    let soundOn = (() => {
+      try { return localStorage.getItem(SOUND_KEY) === '1'; } catch (err) { return false; }
+    })();
 
     function getCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1631,8 +1635,11 @@
     }
 
     const soundToggle = document.getElementById('sound-toggle');
+    soundToggle.textContent = soundOn ? '\u{1F50A}' : '\u{1F508}';
+    soundToggle.title = soundOn ? 'Sound is on' : 'Sound is off';
     soundToggle.addEventListener('click', () => {
       soundOn = !soundOn;
+      try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch (err) { /* unavailable */ }
       soundToggle.textContent = soundOn ? '\u{1F50A}' : '\u{1F508}';
       soundToggle.title = soundOn ? 'Sound is on' : 'Sound is off';
       if (soundOn) {
@@ -1807,6 +1814,7 @@
     function doLogin() {
       playSound('startup');
       bootScreen.classList.add('hidden');
+      JulianPersist.restoreOnce();
     }
 
     function doShutdown() {

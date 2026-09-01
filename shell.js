@@ -6,6 +6,23 @@
    (explorer.js), all loaded earlier.
    ══════════════════════════════════════════════════════════════════ */
 (function () {
+  /* ── Desktop icon order persistence ── */
+  const ICON_ORDER_KEY = 'julianos:icon-order';
+  function saveIconOrder() {
+    const wrap = document.querySelector('.desktop-icons');
+    if (!wrap) return;
+    try { localStorage.setItem(ICON_ORDER_KEY, JSON.stringify([...wrap.children].map((el) => el.id))); } catch (err) { /* unavailable */ }
+  }
+  function restoreIconOrder() {
+    const wrap = document.querySelector('.desktop-icons');
+    if (!wrap) return;
+    let order;
+    try { order = JSON.parse(localStorage.getItem(ICON_ORDER_KEY)); } catch (err) { return; }
+    if (!Array.isArray(order)) return;
+    order.forEach((id) => { const el = document.getElementById(id); if (el) wrap.appendChild(el); });
+  }
+  restoreIconOrder();
+
   /* ── Run dialog ── */
   const RUN_COMMANDS = [
     'aboutme', 'projects', 'mycomputer', 'documents', 'github', 'iexplorer',
@@ -111,6 +128,7 @@
             .sort((a, b) => a.querySelector('.desktop-icon-label').textContent
               .localeCompare(b.querySelector('.desktop-icon-label').textContent))
             .forEach((el) => wrap.appendChild(el));
+          saveIconOrder();
           window.playSound?.('click');
         },
       },

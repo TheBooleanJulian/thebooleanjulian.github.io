@@ -35,6 +35,17 @@
   }
 
   /* ── Navigation ── */
+  const LAST_PATH_KEY = 'julianos:explorer-path';
+  function saveLastPath() {
+    try { localStorage.setItem(LAST_PATH_KEY, JSON.stringify(state.path)); } catch (err) { /* unavailable */ }
+  }
+  function loadLastPath() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LAST_PATH_KEY));
+      return Array.isArray(raw) ? raw : null;
+    } catch (err) { return null; }
+  }
+
   function navigate(path, pushHistory) {
     const node = JulianFS.resolve(path);
     if (!node || node.type !== 'folder') return;
@@ -45,6 +56,7 @@
       state.history.push(state.path.slice());
       state.historyIndex = state.history.length - 1;
     }
+    saveLastPath();
     render();
   }
 
@@ -53,6 +65,7 @@
     state.historyIndex -= 1;
     state.path = state.history[state.historyIndex].slice();
     state.selected = null;
+    saveLastPath();
     render();
   }
   function forward() {
@@ -60,6 +73,7 @@
     state.historyIndex += 1;
     state.path = state.history[state.historyIndex].slice();
     state.selected = null;
+    saveLastPath();
     render();
   }
   function up() {
@@ -223,5 +237,12 @@
     navigate(path || [], true);
   }
 
-  window.JulianExplorer = { open: openExplorer, refresh: render, showProperties };
+  // Used by persist.js to bring Explorer back to wherever it was left,
+  // instead of forcing it back to C:\ like a fresh "My Computer" launch.
+  function openLastExplorer() {
+    ensureChrome();
+    navigate(loadLastPath() || [], true);
+  }
+
+  window.JulianExplorer = { open: openExplorer, openLast: openLastExplorer, refresh: render, showProperties };
 })();
