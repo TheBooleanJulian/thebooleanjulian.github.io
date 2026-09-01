@@ -690,6 +690,69 @@
     .card.wm-maximized .wm-resize-handle { display: none; }
     body.wm-no-select { user-select: none; -webkit-user-select: none; }
 
+    /* ── EXPLORER ── */
+    .explorer-toolbar { flex-wrap: nowrap; }
+    .explorer-toolbar .btn { min-width: unset; padding: .2rem .5rem; font-size: .8rem; }
+    .explorer-toolbar .btn:disabled { opacity: .4; cursor: default; }
+    .explorer-address {
+      flex: 1; display: flex; align-items: center; gap: .3rem;
+      background: #fff; border: 1px solid #7f9db9; padding: .2rem .5rem;
+      font-family: Tahoma, sans-serif; font-size: .78rem; color: var(--text);
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .explorer-toolbar select {
+      height: unset; font-size: .78rem; padding: .2rem 1.4rem .2rem .4rem;
+      background-position: top 3px right 2px;
+    }
+    .explorer-pane {
+      flex: 1; min-height: 260px; max-height: 46vh; overflow: auto;
+      background: #fff; border: 1px solid #a8c4e0; padding: .6rem;
+    }
+    .explorer-pane.view-icons {
+      display: flex; flex-wrap: wrap; align-content: flex-start; gap: .3rem;
+    }
+    .explorer-icon {
+      display: flex; flex-direction: column; align-items: center; gap: .25rem;
+      width: 84px; padding: .4rem .2rem;
+      background: none; border: 1px solid transparent; border-radius: 2px;
+      font-family: Tahoma, sans-serif; font-size: .72rem; color: var(--text);
+      cursor: pointer; text-align: center;
+    }
+    .explorer-icon-glyph { font-size: 1.8rem; }
+    .explorer-icon-label { word-break: break-word; line-height: 1.15; }
+    .explorer-icon:hover { background: var(--accent-dim); }
+    .explorer-icon.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .explorer-pane.view-details { display: block; }
+    .explorer-row {
+      display: grid; grid-template-columns: 1fr 140px; gap: .5rem;
+      padding: .25rem .4rem;
+      font-family: Tahoma, sans-serif; font-size: .76rem;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .explorer-row.explorer-head { font-weight: 700; color: var(--muted); border-bottom: 1px solid #b8b3a0; cursor: default; }
+    .explorer-row:hover:not(.explorer-head) { background: var(--accent-dim); }
+    .explorer-row.selected { background: var(--accent); color: #fff; }
+    .explorer-empty { padding: 1rem; color: var(--muted); font-size: .8rem; font-style: italic; }
+
+    /* ── CONTEXT MENU ── */
+    .xp-context-menu {
+      position: fixed; z-index: 6000;
+      min-width: 160px;
+      background: #fff; border: 1px solid #7f7f7f;
+      box-shadow: 2px 2px 8px rgba(0,0,0,.4);
+      padding: 2px;
+      font-family: Tahoma, sans-serif; font-size: .8rem;
+    }
+    .xp-context-item {
+      display: block; width: 100%;
+      padding: .3rem .8rem; text-align: left;
+      background: none; border: none; min-width: unset;
+      cursor: pointer; color: var(--text);
+    }
+    .xp-context-item:hover { background: var(--accent); color: #fff; }
+    .xp-context-sep { height: 1px; margin: 3px 4px; background: #ddd; }
+
     /* ── SORT / FILTER BAR ── */
     .xp-addressbar { flex-wrap: wrap; }
     .xp-filterbar { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
@@ -891,7 +954,7 @@
   <div class="cloud cloud-2"></div>
 
   <div class="desktop-icons">
-    <button class="desktop-icon" id="icon-about" title="Double-click to open">
+    <button class="desktop-icon" id="icon-mycomputer" title="Double-click to open">
       <span class="desktop-icon-glyph">&#128421;&#65039;</span>
       <span class="desktop-icon-label">My Computer</span>
     </button>
@@ -1038,8 +1101,8 @@
         <a class="start-menu-item" href="https://www.linkedin.com/in/juliancheungjunyan/" target="_blank" rel="noopener"><span class="smi-icon">&#128188;</span> LinkedIn</a>
       </div>
       <div class="start-menu-right">
-        <button class="start-menu-item" data-action="open-hero"><span class="smi-icon">&#128187;</span> My Computer</button>
-        <button class="start-menu-item" data-action="open-projects"><span class="smi-icon">&#128194;</span> My Documents</button>
+        <button class="start-menu-item" data-action="open-mycomputer"><span class="smi-icon">&#128187;</span> My Computer</button>
+        <button class="start-menu-item" data-action="open-documents"><span class="smi-icon">&#128194;</span> My Documents</button>
         <div class="start-menu-divider start-menu-divider-right"></div>
         <button class="start-menu-item" data-action="open-notepad"><span class="smi-icon">&#128221;</span> Notepad</button>
         <button class="start-menu-item" data-action="open-paint"><span class="smi-icon">&#127912;</span> Paint</button>
@@ -1084,6 +1147,8 @@
   </div>
 
   <script src="os.js"></script>
+  <script src="fs.js"></script>
+  <script src="explorer.js"></script>
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
     const AVATAR_URL  = 'assets/tbj-v2.png';
@@ -1412,6 +1477,8 @@
       populateLangFilter(repos);
       applyFiltersAndRender();
       loadReadmeThumbnails(repos);
+      JulianFS.setProjectRepos(repos);
+      JulianExplorer.refresh();
       if (staleNotice) {
         document.getElementById('repo-grid').insertAdjacentHTML('beforebegin', staleNotice);
       }
@@ -1597,6 +1664,8 @@
 
     JulianOS.registerApp({ id: 'aboutme',     name: 'About Me',     icon: '&#128421;&#65039;', launch: () => openWindow('window-hero') });
     JulianOS.registerApp({ id: 'projects',    name: 'My Projects',  icon: '&#128193;',         launch: () => openWindow('window-projects') });
+    JulianOS.registerApp({ id: 'mycomputer',  name: 'My Computer',  icon: '&#128421;&#65039;', launch: () => JulianExplorer.open([]) });
+    JulianOS.registerApp({ id: 'documents',   name: 'My Documents', icon: '&#128194;',         launch: () => JulianExplorer.open(['Documents']) });
     JulianOS.registerApp({ id: 'github',      name: 'GitHub',       icon: '&#128025;',         launch: () => window.open('https://github.com/TheBooleanJulian', '_blank', 'noopener') });
     JulianOS.registerApp({ id: 'games',       name: 'Games',        icon: '&#127918;',         launch: () => openGameCenter() });
     JulianOS.registerApp({ id: 'notepad',     name: 'Notepad',      icon: '&#128221;',         launch: () => launchNotepad() });
@@ -1625,6 +1694,8 @@
     const START_MENU_APPS = {
       'open-hero': 'aboutme',
       'open-projects': 'projects',
+      'open-mycomputer': 'mycomputer',
+      'open-documents': 'documents',
       'open-games': 'games',
       'open-notepad': 'notepad',
       'open-paint': 'paint',
@@ -1654,7 +1725,7 @@
       });
     }
 
-    attachActivate(document.getElementById('icon-about'), () => JulianOS.launch('aboutme'));
+    attachActivate(document.getElementById('icon-mycomputer'), () => JulianOS.launch('mycomputer'));
     attachActivate(document.getElementById('icon-projects'), () => JulianOS.launch('projects'));
     attachActivate(document.getElementById('icon-github'), () => JulianOS.launch('github'));
     attachActivate(document.getElementById('icon-games'), () => JulianOS.launch('games'));

@@ -1932,3 +1932,7 @@ function launchMediaPlayer() {
   }
   requestAnimationFrame(loop);
 }
+
+// All GAMES.push() calls above have run by this point — safe to mirror
+// the registry into the virtual filesystem's Games folder.
+window.JulianFS?.setGames(GAMES);
