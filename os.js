@@ -74,11 +74,12 @@
   }
 
   // Project-preview cards inside My Projects reuse the `.card.window`
-  // chrome purely for decoration (they have no id/wid of their own) —
-  // exclude anything nested inside another window from the "real"
-  // window list so Show Desktop / Alt+Tab don't sweep up every repo card.
+  // chrome purely for decoration (they have no id/wid of their own).
+  // Genuine windows are marked `.wm-toplevel` at creation (static markup
+  // for About Me/Projects, or by createGameWindow for everything else) so
+  // Show Desktop/Alt+Tab/mobile full-screen don't sweep up every repo card.
   function isTopLevelWindow(card) {
-    return !card.parentElement?.closest('.card.window');
+    return card.classList.contains('wm-toplevel');
   }
 
   function openWindows() {

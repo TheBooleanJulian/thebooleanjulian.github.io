@@ -9,7 +9,7 @@ function createGameWindow(id, icon, title, widthPx) {
     return card.querySelector('.game-body');
   }
   card = document.createElement('div');
-  card.className = 'card window game-window';
+  card.className = 'card window wm-toplevel game-window';
   card.id = id;
   card.style.setProperty('--game-w', (widthPx || 480) + 'px');
   card.innerHTML = `
