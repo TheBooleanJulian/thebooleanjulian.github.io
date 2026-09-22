@@ -33,6 +33,20 @@ A GitHub Pages landing page for [@TheBooleanJulian](https://github.com/TheBoolea
 | Data | GitHub REST API (client-side fetch) |
 | Hosting | GitHub Pages |
 
+## Screenshots
+
+_Screenshots coming soon — for now, visit the live site at [thebooleanjulian.github.io](https://thebooleanjulian.github.io/) to see it in action._
+
+## Quick Start
+
+No install needed. Clone the repo and open the file:
+
+```bash
+git clone https://github.com/TheBooleanJulian/thebooleanjulian.github.io
+cd thebooleanjulian.github.io
+open index.html
+```
+
 ## Project Structure
 
 ```
@@ -62,6 +76,15 @@ Versioned loosely as semver: **major** = a redesign or breaking change to how th
 - **v0.2.1** — *2026-07-18* — Rewrite README and remove a stray `requirements.txt`
 - **v0.2.0** — *2026-04-08* — Replace the hardcoded project list with a live GitHub API fetch; redesign the landing page around a dynamic project showcase
 - **v0.1.0** — *2026-04-08* — Initial static landing page
+
+## Status / Roadmap
+
+- [x] Dynamic project showcase powered by the live GitHub API
+- [x] Windows XP-themed desktop shell (windows, taskbar, Start Menu, boot/shutdown screen)
+- [x] 8 playable mini-games plus MS Paint, Notepad, and a music visualizer
+- [x] Persona-based project categorization tabs
+- [ ] Persistent window state across page reloads
+- [ ] Right-click context menus for the desktop and windows
 
 ## Future Roadmap
 
