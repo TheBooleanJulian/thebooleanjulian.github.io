@@ -4,11 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Boolean Julian</title>
-  <link rel="icon" type="image/png" href="assets/tbj-v2.png">
+  <meta name="description" content="Projects by TheBooleanJulian, a Singapore developer building Telegram bots, web apps and automation tools, presented as a retro desktop with live GitHub projects and mini-games.">
+  <link rel="canonical" href="https://thebooleanjulian.dev/">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/tbj-256.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thebooleanjulian.dev/">
   <meta property="og:title" content="The Boolean Julian">
-  <meta property="og:image" content="https://thebooleanjulian.dev/assets/tbj-v2.png">
+  <meta property="og:description" content="Telegram bots, web apps and automation tools by TheBooleanJulian, on a retro desktop.">
+  <meta property="og:image" content="https://thebooleanjulian.dev/assets/tbj-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://thebooleanjulian.dev/assets/tbj-v2.png">
+  <meta name="twitter:title" content="The Boolean Julian">
+  <meta name="twitter:description" content="Telegram bots, web apps and automation tools by TheBooleanJulian, on a retro desktop.">
+  <meta name="twitter:image" content="https://thebooleanjulian.dev/assets/tbj-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -1058,6 +1068,7 @@
       .wm-resize-handle { display: none !important; }
     }
   </style>
+  <noscript><style>.boot-screen, .spinner, .js-only { display: none; }</style></noscript>
 </head>
 <body>
 
@@ -1100,7 +1111,7 @@
         <div class="xp-login-divider"></div>
         <div class="xp-login-right">
           <button class="login-user" id="login-user">
-            <img class="login-avatar" src="assets/tbj-v2.png" alt="">
+            <img class="login-avatar" src="assets/tbj-256.png" alt="">
             <span class="login-user-info">
               <span class="login-user-name">TheBooleanJulian</span>
               <span class="login-user-sub">Administrator</span>
@@ -1178,7 +1189,7 @@
   <!-- MOBILE SHELL (phone-width landing screen — not a shrunk desktop) -->
   <div class="mobile-shell" id="mobile-shell">
     <div class="mobile-shell-header">
-      <img src="assets/tbj-v2.png" alt="">
+      <img src="assets/tbj-256.png" alt="">
       <div class="mobile-shell-heading">
         <b>The Boolean Julian</b>
         <span>Tap to explore JulianOS</span>
@@ -1210,7 +1221,7 @@
       <div class="window-body hero-body">
         <img
           class="hero-avatar"
-          src="assets/tbj-v2.png"
+          src="assets/tbj-256.png"
           alt="TheBooleanJulian avatar"
         >
         <div class="hero-text">
@@ -1275,7 +1286,9 @@
           <div class="grid" id="repo-grid">
             <div class="state-msg">
               <div class="spinner"></div><br>
-              Loading repos&hellip;
+              <span class="js-only">Loading repos&hellip;</span>
+              <noscript>The project list needs JavaScript.
+                <a href="https://github.com/TheBooleanJulian?tab=repositories">Browse the projects on GitHub &rarr;</a></noscript>
             </div>
           </div>
         </article>
@@ -1290,7 +1303,7 @@
 
   <div class="start-menu" id="start-menu">
     <div class="start-menu-header">
-      <img src="assets/tbj-v2.png" alt="">
+      <img src="assets/tbj-256.png" alt="">
       <b>The Boolean Julian</b>
     </div>
     <div class="start-menu-body">
@@ -1373,7 +1386,7 @@
   <script src="persist.js"></script>
   <script>
     const GITHUB_USER = 'TheBooleanJulian';
-    const AVATAR_URL  = 'assets/tbj-v2.png';
+    const AVATAR_URL  = 'assets/tbj-256.png';
 
     // GitHub language → CSS colour (github.com/ozh/github-colors)
     const LANG_COLORS = {
@@ -1474,17 +1487,53 @@
       if (img) img.src = url;
     }
 
+    // Resolved thumbnails are remembered per repo and only re-probed after
+    // the repo is pushed to again: without this every visit fires up to 8
+    // requests per repo (hero.* probes + README casings), mostly 404s.
+    // An empty url means "nothing found, keep the OpenGraph fallback".
+    const THUMBS_CACHE_KEY = 'julianos:thumbs';
+    let thumbsCache = {};
+    try { thumbsCache = JSON.parse(localStorage.getItem(THUMBS_CACHE_KEY)) || {}; } catch (err) { thumbsCache = {}; }
+    function rememberThumb(repo, url) {
+      thumbsCache[repo.full_name] = { pushed: repo.pushed_at, url };
+    }
+
     async function loadReadmeThumbnails(repos) {
-      await Promise.allSettled(repos.map(async (repo) => {
+      const todo = [];
+      repos.forEach((repo) => {
+        const hit = thumbsCache[repo.full_name];
+        if (hit && hit.pushed === repo.pushed_at) {
+          if (hit.url) setCardThumb(repo, hit.url);
+        } else {
+          todo.push(repo);
+        }
+      });
+
+      // Probe a few repos at a time rather than all at once.
+      let next = 0;
+      const worker = async () => {
+        while (next < todo.length) {
+          const repo = todo[next++];
+          const url = await findReadmeThumb(repo);
+          rememberThumb(repo, url || '');
+          if (url) setCardThumb(repo, url);
+        }
+      };
+      await Promise.allSettled(Array.from({ length: Math.min(6, todo.length) }, worker));
+
+      // Drop entries for repos that no longer exist, then save.
+      const live = new Set(repos.map((r) => r.full_name));
+      Object.keys(thumbsCache).forEach((k) => { if (!live.has(k)) delete thumbsCache[k]; });
+      try { localStorage.setItem(THUMBS_CACHE_KEY, JSON.stringify(thumbsCache)); } catch (err) { /* unavailable */ }
+    }
+
+    async function findReadmeThumb(repo) {
         const branch = repo.default_branch || 'main';
         // Prefer a dedicated hero.png/jpg at the repo root over whatever
         // image happens to appear first in the README (usually a badge).
         for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
           const heroUrl = `https://raw.githubusercontent.com/${repo.full_name}/${branch}/hero.${ext}`;
-          if (await imageExists(heroUrl)) {
-            setCardThumb(repo, heroUrl);
-            return;
-          }
+          if (await imageExists(heroUrl)) return heroUrl;
         }
         // Read the README straight off the raw CDN rather than the GitHub
         // API — the API's /readme endpoint shares the same 60 req/hour
@@ -1497,15 +1546,22 @@
             if (!res.ok) continue;
             const text = await res.text();
             const raw = extractReadmeImage(text);
-            if (!raw) return;
-            const url = resolveReadmeImageUrl(raw, repo);
-            setCardThumb(repo, url);
-            return;
+            return raw ? resolveReadmeImageUrl(raw, repo) : null;
           } catch (err) {
             // Try the next casing / keep the fallback thumbnail showing.
           }
         }
-      }));
+        return null;
+    }
+
+    // Repo "homepage" values are free text: add a missing https:// (otherwise
+    // "foo.example.dev" becomes a broken relative link) and drop anything
+    // that isn't http(s). Applied to every repo in showRepos().
+    function normalizeSiteUrl(raw) {
+      const s = (raw || '').trim();
+      if (!s) return '';
+      const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(s) ? s : `https://${s}`;
+      return /^https?:\/\//i.test(withScheme) ? withScheme : '';
     }
 
     function siteLinkEl(url) {
@@ -1533,7 +1589,7 @@
       return `
         <div class="card window">
           <div class="title-bar">
-            <div class="title-bar-text"><span class="xp-icon">${langIcon(repo.language)}</span> <a href="${repo.html_url}" target="_blank" rel="noopener">${escHtml(repo.name)}</a></div>
+            <div class="title-bar-text"><span class="xp-icon">${langIcon(repo.language)}</span> <a href="${escHtml(repo.html_url)}" target="_blank" rel="noopener">${escHtml(repo.name)}</a></div>
             <div class="title-bar-controls">
               <button aria-label="Minimize"></button>
               <button aria-label="Maximize"></button>
@@ -1541,7 +1597,7 @@
             </div>
           </div>
           <div class="window-body">
-            <img class="card-thumb" data-repo="${escHtml(repo.full_name)}" src="${cardThumbSrc(repo)}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.onerror=null;this.src='${AVATAR_URL}';">
+            <img class="card-thumb" data-repo="${escHtml(repo.full_name)}" src="${escHtml(cardThumbSrc(repo))}" alt="${escHtml(repo.name)} preview" loading="lazy" onerror="this.onerror=null;this.src='${AVATAR_URL}';">
             ${desc}
             <div class="card-footer">
               ${langDot(repo.language)}
@@ -1716,6 +1772,8 @@
     }
 
     function showRepos(repos, staleNotice) {
+      // Normalised once here so the cards and Explorer's website.url agree.
+      repos.forEach((r) => { r.homepage = normalizeSiteUrl(r.homepage); });
       allRepos = repos;
       populateLangFilter(repos);
       applyFiltersAndRender();
@@ -1732,15 +1790,22 @@
       const grid = document.getElementById('repo-grid');
 
       try {
-        const res = await fetch(
-          `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`,
-          { headers: { Accept: 'application/vnd.github+json' } }
-        );
+        // The API returns at most 100 repos per page, so keep paging until a
+        // short page comes back (capped, to stay well inside the 60 req/hr
+        // unauthenticated limit).
+        const all = [];
+        for (let page = 1; page <= 5; page++) {
+          const res = await fetch(
+            `https://api.github.com/users/${GITHUB_USER}/repos?type=owner&per_page=100&sort=updated&page=${page}`,
+            { headers: { Accept: 'application/vnd.github+json' } }
+          );
+          if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+          const batch = await res.json();
+          all.push(...batch);
+          if (batch.length < 100) break;
+        }
 
-        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-
-        const repos = (await res.json())
-          .filter(r => !r.fork && !r.archived);
+        const repos = all.filter(r => !r.fork && !r.archived);
 
         if (repos.length === 0) {
           grid.innerHTML = '<div class="state-msg">No public repos found.</div>';
@@ -2048,19 +2113,48 @@
       bootScreen.className = 'boot-screen phase-' + name;
     }
 
-    window.addEventListener('load', () => {
-      setTimeout(() => showPhase('login'), reducedMotion ? 0 : 1400);
-    });
+    // Skip the boot + login screens when the visitor already logged in
+    // during this tab session (a reload), or when the link asks for it
+    // (?skip or #skip), e.g. for links shared from a CV or profile.
+    const SESSION_KEY = 'julianos:logged-in';
+    function hasSession() {
+      try { return sessionStorage.getItem(SESSION_KEY) === '1'; } catch (err) { return false; }
+    }
+    function setSession(on) {
+      try {
+        if (on) sessionStorage.setItem(SESSION_KEY, '1');
+        else sessionStorage.removeItem(SESSION_KEY);
+      } catch (err) { /* unavailable */ }
+    }
+    const skipRequested = /(^|[?&])skip(=|&|$)/.test(location.search.slice(1)) || location.hash === '#skip';
 
-    function doLogin() {
-      playSound('startup');
+    function showLogin() {
+      showPhase('login');
+      loginUser.focus({ preventScroll: true });
+    }
+
+    function doLogin(quiet) {
+      if (quiet !== true) playSound('startup');
       bootScreen.classList.add('hidden');
+      setSession(true);
       JulianPersist.restoreOnce();
       JulianAchievements.unlock('welcome');
     }
 
+    if (skipRequested || hasSession()) {
+      // Hide now; restore saved windows once games.js (below) has loaded,
+      // since several reopen handlers live there.
+      bootScreen.classList.add('hidden');
+      document.addEventListener('DOMContentLoaded', () => doLogin(true));
+    } else {
+      // Start the boot phase straight away rather than waiting for every
+      // image on the page to finish loading.
+      setTimeout(showLogin, reducedMotion ? 0 : 1400);
+    }
+
     function doShutdown() {
       playSound('shutdown');
+      setSession(false);
       resetBootClasses();
       bootScreen.classList.add('shutdown');
       shutdownHint.textContent = 'Aperture XD is shutting down…';
@@ -2077,6 +2171,7 @@
       playSound('shutdown');
       resetBootClasses();
       bootScreen.classList.add('shutdown');
+      setSession(false);
       shutdownHint.textContent = 'Aperture XD is restarting…';
       shutdownCap.textContent = 'Please wait while your computer restarts.';
       setTimeout(() => location.reload(), reducedMotion ? 0 : 1500);
@@ -2093,13 +2188,14 @@
 
     function doLogOff() {
       playSound('shutdown');
+      setSession(false);
       resetBootClasses();
       resetWindowStates();
       window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
-      setTimeout(() => showPhase('login'), reducedMotion ? 0 : 900);
+      setTimeout(showLogin, reducedMotion ? 0 : 900);
     }
 
-    loginUser.addEventListener('click', doLogin);
+    loginUser.addEventListener('click', () => doLogin());
     document.querySelector('.login-footer [data-action="shutdown"]').addEventListener('click', doShutdown);
   </script>
 

@@ -1,0 +1,5 @@
+# Cloudflare prepends its managed rules (AI-crawler blocks, content signals) to this file.
+User-agent: *
+Allow: /
+
+Sitemap: https://thebooleanjulian.dev/sitemap.xml
