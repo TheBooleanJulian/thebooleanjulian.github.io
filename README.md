@@ -22,20 +22,22 @@ A GitHub Pages landing page for [@TheBooleanJulian](https://github.com/TheBoolea
 - Dynamic project showcase powered by the GitHub API (no manual list maintenance), auto-categorized by use case into selectable tabs
 - Aperture XD-themed desktop: draggable-free windows with minimize/maximize/close and taskbar restore, a Start Menu, desktop icons, and a boot/shutdown screen
 - 8 playable mini-games (Tic Tac Toe, Minesweeper, Battleship, Mancala, Blackjack, Solitaire, Chess, Pinball) plus MS Paint, Notepad, and a music visualizer
+- JulianOS shell: virtual filesystem + Explorer, Internet Explorer, Command Prompt, Task Manager, Control Panel, Run dialog, context menus, notifications, achievements, saved window state and a mobile shell
+- Reloads in the same tab skip the boot/login screens; add `?skip` (or `#skip`) to a link to go straight to the desktop
 - No build step — plain HTML/CSS/JS, no bundler or framework
-- Hosted on GitHub Pages at [thebooleanjulian.github.io](https://thebooleanjulian.github.io/)
+- Hosted on GitHub Pages at [thebooleanjulian.dev](https://thebooleanjulian.dev/) (behind Cloudflare)
 
 ## Tech Stack
 
 | Layer | Choice |
 |---|---|
-| Frontend | Plain HTML/CSS/JS (`index.html` + `games.js`) |
-| Data | GitHub REST API (client-side fetch) |
-| Hosting | GitHub Pages |
+| Frontend | Plain HTML/CSS/JS (`index.html`, one script per JulianOS app, `games.js`) and vendored [XP.css](https://botoxparty.github.io/XP.css/) |
+| Data | GitHub REST API (client-side fetch, cached in `localStorage`) |
+| Hosting | GitHub Pages, custom domain via `CNAME`, proxied by Cloudflare |
 
 ## Screenshots
 
-_Screenshots coming soon — for now, visit the live site at [thebooleanjulian.github.io](https://thebooleanjulian.github.io/) to see it in action._
+_Screenshots coming soon — for now, visit the live site at [thebooleanjulian.dev](https://thebooleanjulian.dev/) to see it in action._
 
 ## Quick Start
 
@@ -51,10 +53,22 @@ open index.html
 
 ```
 thebooleanjulian.github.io/
-|-- index.html
-|-- games.js
+|-- index.html          page, styles, project showcase, boot/login flow
+|-- os.js               window manager + app registry
+|-- shell.js            Start menu, Run dialog, context menus, keyboard shell
+|-- fs.js, explorer.js  virtual filesystem + Explorer
+|-- browser.js, cmd.js, taskmgr.js, controlpanel.js   JulianOS apps
+|-- notifications.js, achievements.js, easter-eggs.js
+|-- persist.js          saved window state
+|-- games.js            mini-games, Paint, Notepad, media player
+|-- favicon.ico, robots.txt, sitemap.xml, CNAME
 |-- assets/
-|   `-- tbj-v2.png
+|   |-- xp.css          vendored XP.css v0.2.6 (dead @font-face rules removed)
+|   |-- bliss.svg       wallpaper
+|   |-- tbj-v2.png      full-size avatar (README only)
+|   |-- tbj-512.png     link-preview image
+|   |-- tbj-256.png     on-page avatar
+|   `-- favicon-32.png
 |-- LICENSE
 |-- NOTICE
 `-- COMMERCIAL-LICENSE.md
@@ -64,6 +78,8 @@ thebooleanjulian.github.io/
 
 Versioned loosely as semver: **major** = a redesign or breaking change to how the site presents itself, **minor** = a new user-facing feature, **patch** = a fix to existing behavior.
 
+- **v2.1.0** — *2026-11-26* — Skip boot/login on reload or with `?skip`; page through all repos (no 100 cap); remember README thumbnails per repo (about 450 requests per repeat visit down to about 13); fix homepage links missing `https://`; smaller avatar and favicon; meta description, Open Graph tags, sitemap and no-JS fallback; drop XP.css font rules whose files 404ed
+- **v2.0.0** — *2026-09-01* — JulianOS: shared window manager, virtual filesystem + Explorer, Run dialog and context menus, Internet Explorer, session persistence, mobile shell, Command Prompt, Task Manager, Control Panel, notifications, achievements, easter eggs and an accessibility pass; XP branding renamed to Migusoft Aperture XD
 - **v1.6.0** — *2026-07-24* — Categorize projects by persona (Bots & Automations, Games & Fun, Web Apps & Sites, Dev Tools & Scripts, Other) and present them as selectable tabs instead of one flat grid
 - **v1.5.0** — *2026-07-20* — Add fork/open-issue stat badges, use each repo's README hero image as its card thumbnail (falling back to the GitHub auto-thumbnail, then the profile picture)
 - **v1.4.0** — *2026-07-20* — Add bouncy diagonal guide walls to Pinball, higher-contrast Chess pieces, and MS Paint / Notepad / Windows Media Player-style visualizer apps
@@ -83,8 +99,8 @@ Versioned loosely as semver: **major** = a redesign or breaking change to how th
 - [x] Windows XP-themed desktop shell (windows, taskbar, Start Menu, boot/shutdown screen)
 - [x] 8 playable mini-games plus MS Paint, Notepad, and a music visualizer
 - [x] Persona-based project categorization tabs
-- [ ] Persistent window state across page reloads
-- [ ] Right-click context menus for the desktop and windows
+- [x] Persistent window state across page reloads
+- [x] Right-click context menus for the desktop and windows
 
 ## Future Roadmap
 
